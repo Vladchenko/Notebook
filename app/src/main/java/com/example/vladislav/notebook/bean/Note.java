@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class Note {
 
-    private int mID;                 // ID of a current note.
+    private long mID;                 // ID of a current note.
     private String mTitle;           // Title of a note to be created.
     private String mText;            // Text of a note to be created.
     private String mTag;             // Some mTag not sure what for yet.
@@ -66,11 +66,11 @@ public class Note {
         this.mModificationDate = mModificationDate;
     }
 
-    public int getmID() {
+    public long getmID() {
         return mID;
     }
 
-    public void setmID(int mID) {
+    public void setmID(long mID) {
         this.mID = mID;
     }
 }

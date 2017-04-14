@@ -23,7 +23,7 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String noteId = null;
+        long noteId = -1;
         String noteTitle = null;
         String noteContentText = null;
         EditText noteTitleEditText;
@@ -39,9 +39,9 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
         noteTitleEditText = (EditText) findViewById(R.id.note_title_edittext);
         noteContentTextEditText = (EditText) findViewById(R.id.note_content_edittext);
 
-        noteId = intent.getStringExtra(DBNotesContract.Note._ID);
+        noteId = intent.getLongExtra(DBNotesContract.Note._ID, -1);
         // Present Id says that there is a note to be edited.
-        if (noteId != null) {
+        if (noteId != -1) {
             noteTitle = intent.getStringExtra(DBNotesContract.Note.TITLE);
             noteTitleEditText.setText(noteTitle);
             noteContentText = intent.getStringExtra(DBNotesContract.Note.TEXT);

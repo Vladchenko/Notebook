@@ -120,6 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
             note = new Note();
 
+            note.setmID(Long.parseLong(cursor.getString(0)));
             note.setmTitle(cursor.getString(1));
             note.setmText(cursor.getString(2));
             note.setmTag(cursor.getString(3));
