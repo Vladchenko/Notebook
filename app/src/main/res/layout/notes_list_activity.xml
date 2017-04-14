@@ -12,7 +12,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="10">
+        android:layout_weight="10"
+        android:background="@drawable/custom_border_notes_list">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"
@@ -26,7 +27,6 @@
             android:layout_height="wrap_content"
             android:text="Add a note by clicking + button"
             android:layout_centerInParent="true"/>
-
 
     </RelativeLayout>
 
