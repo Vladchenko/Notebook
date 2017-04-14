@@ -23,8 +23,37 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case (R.id.add_button): {
+                Intent intent = new Intent(this, NoteActivity.class);
+                startActivityForResult(intent, 1);
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == DBHelper.NEW_NOTE_ADDED) {
+            // Loading notes from a database.
+            try {
+                mNotesHandler.setNotes((LinkedList)DBHelper.getInstance().loadAllNotesFromDataBase());
+            } catch (ParseException e) {
+                Log.e(getClass().getSimpleName(), e.getMessage());
+            }
+            mAdapter.update(mNotesHandler.getNotes());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         setContentView(R.layout.notes_list_activity);
         ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
@@ -38,28 +67,24 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
         } catch (ParseException e) {
             Log.e(getClass().getSimpleName(), e.getMessage());
         }
-//        Log.i(getClass().getSimpleName(), "READ TITLE - " + mNotesHandler.getNotes().get(0).getmTitle());
-
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(NotesListActivity.this,
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-//                                mListener.onBankOfficeSelected(mNotesHandler.getNotes().get(position));
-//                                mEditor = mSharedPreferences.edit();
-//                                mEditor.putInt(Consts.BANK_LIST_INDEX, position);
-//                                mEditor.commit();
                                 Intent intent = new Intent(NotesListActivity.this,
-                                        AddNoteActivity.class);
+                                        NoteActivity.class);
                                 // Putting a data about a clicked note to an intent, to get it later
-                                // in a AddNoteActivity to edit.
+                                // in a NoteActivity to edit.
                                 intent.putExtra(DBNotesContract.Note._ID,
                                         mNotesHandler.getNotes().get(position).getmID());
                                 intent.putExtra(DBNotesContract.Note.TITLE,
                                         mNotesHandler.getNotes().get(position).getmTitle());
                                 intent.putExtra(DBNotesContract.Note.TEXT,
                                         mNotesHandler.getNotes().get(position).getmText());
+//                                intent.putExtra(DBNotesContract.sNoteListPosition, position);
+
                                 startActivity(intent);
                             }
                         })
@@ -68,30 +93,5 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
         mAdapter.update(mNotesHandler.getNotes());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mAdapter);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case (R.id.add_button): {
-                Intent intent = new Intent(this, AddNoteActivity.class);
-                startActivityForResult(intent, 1);
-                break;
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 1) {
-            // Loading notes from a database.
-            try {
-                mNotesHandler.setNotes((LinkedList)DBHelper.getInstance().loadAllNotesFromDataBase());
-            } catch (ParseException e) {
-                Log.e(getClass().getSimpleName(), e.getMessage());
-            }
-            mAdapter.update(mNotesHandler.getNotes());
-        }
     }
 }

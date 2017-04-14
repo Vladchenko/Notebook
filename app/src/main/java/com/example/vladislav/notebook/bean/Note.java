@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * Created by vladislav on 13.04.17.
+ * Bean for a Note entity.
  */
 
 public class Note {
@@ -17,8 +18,7 @@ public class Note {
 
     public Note() {}
 
-    public Note(int mID, String mTitle, String mText, String mTag, Date mCreationDate, Date mModificationDate) {
-        this.mID = mID;
+    public Note(String mTitle, String mText, String mTag, Date mCreationDate, Date mModificationDate) {
         this.mTitle = mTitle;
         this.mText = mText;
         this.mTag = mTag;

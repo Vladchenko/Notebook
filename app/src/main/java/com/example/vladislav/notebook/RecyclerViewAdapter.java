@@ -33,17 +33,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(NoteListItemViewHolder holder, int position) {
         Note note = mNotesList.get(position);
         holder.titleTextView.setText(note.getmTitle());
-//        holder.distanceTextView.setText(bankDetails.getmDistance());
-//        holder.extraOfficeTextView.setText(bankDetails.getmName());
-//        if (BankOfficeListActivity.isPortraitModeOn()) {
-//            if (bankDetails.getmEstimationMark() > -1) {
-//                System.out.println(bankDetails);
-//                holder.estimationTextView.setText("Оценка "
-//                        + Integer.toString(bankDetails.getmEstimationMark()));
-//            } else {
-//                holder.estimationTextView.setText("");
-//            }
-//        }
     }
 
     @Override

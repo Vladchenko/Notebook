@@ -16,9 +16,6 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
     private OnItemClickListener mListener;
     private GestureDetector mGestureDetector;
 
-    private SharedPreferences mSharedPreferences;
-    private SharedPreferences.Editor mEditor;
-
     public interface OnItemClickListener {
         public void onItemClick(View view, int position);
     }
@@ -31,9 +28,6 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
                 return true;
             }
         });
-//        mSharedPreferences = context.getSharedPreferences(
-//                Consts.SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE);
-//        mEditor = mSharedPreferences.edit();
     }
 
     @Override

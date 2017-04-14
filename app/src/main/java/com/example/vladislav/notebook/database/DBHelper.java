@@ -28,12 +28,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "Notes.db";
     public static final int DATABASE_VERSION = 1;
     public static final Logger log = Logger.getLogger("DBHelper");
+    public static final int NEW_NOTE_ADDED = 1;
+    public static final int NEW_NOTE_NOT_ADDED = 0;
 
-    private static DBHelper instance;
     private Date date;
+    private static DBHelper instance;
     private SimpleDateFormat sdf = new SimpleDateFormat(Environment.DATE_TIME_FORMAT);
-    private SharedPreferences mSharedPreferences;
-    private SharedPreferences.Editor mEditor;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -60,36 +60,28 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    // This method is to be called only when a database doesn't exist.
+    // This method is called only when a database doesn't exist.
     @Override
     public void onCreate(SQLiteDatabase db) {
+        createDataBase(db);
+    }
+
+    private static void createDataBase(SQLiteDatabase db) {
         log.info("Attempting to create database's table " + DBNotesContract.SQL_CREATE_TABLE_NOTES + " .");
         db.execSQL(DBNotesContract.SQL_CREATE_TABLE_NOTES);
         log.info("Database's table " + DBNotesContract.SQL_CREATE_TABLE_NOTES + " table has been created.");
     }
 
-//    public static void createDataBase() {
-//        log.info("Attempting to create database " + DATABASE_NAME + ".");
-//        db.execSQL(DBNotesContract.SQL_CREATE_TABLE_NOTES);
-//        log.info("Database " + DATABASE_NAME + " table has been created.");
-//    }
-
     public static void dropDataBase(Context context) {
-//            mSharedPreferences = context.getSharedPreferences(
-//                    Consts.SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE);
-//            mEditor = mSharedPreferences.edit();
         log.info("Removing a database");
         context.deleteDatabase(DATABASE_NAME);
         log.info("Database has been dropped");
-//            mEditor.putBoolean(Consts.DATABASE_ALREADY_POPULATED, false);
-//            mEditor.commit();
     }
 
     public ContentValues setNoteValues(Note note) {
 
         ContentValues values = new ContentValues();
 
-        values.put(DBNotesContract.Note._ID, note.getmID());
         values.put(DBNotesContract.Note.TITLE, note.getmTitle());
         values.put(DBNotesContract.Note.TEXT, note.getmText());
         values.put(DBNotesContract.Note.TAG, note.getmTag());
