@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.example.vladislav.notebook.bean.Note;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ import java.util.List;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
     private List<Note> mNotesList;
+    private DateFormat dateFormat = new SimpleDateFormat(Environment.DATE_TIME_FORMAT);
 
     public RecyclerViewAdapter() {
     }
@@ -33,6 +36,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(NoteListItemViewHolder holder, int position) {
         Note note = mNotesList.get(position);
         holder.titleTextView.setText(note.getmTitle());
+        holder.modification_timing_text_view.setText(dateFormat.format(note.getmModificationDate()));
     }
 
     @Override
@@ -52,10 +56,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public class NoteListItemViewHolder extends RecyclerView.ViewHolder {
 
         TextView titleTextView;
+        TextView modification_timing_text_view;
 
         public NoteListItemViewHolder(View itemView) {
             super(itemView);
             titleTextView = (TextView) itemView.findViewById(R.id.note_title_text_view);
+            modification_timing_text_view = (TextView) itemView.findViewById(R.id.modification_timing_text_view);
         }
 
     }

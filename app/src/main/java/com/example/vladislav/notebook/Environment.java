@@ -6,6 +6,6 @@ package com.example.vladislav.notebook;
 
 public class Environment {
 
-    public static final String DATE_TIME_FORMAT = "YYYY-MM-DD HH:MM:SS.SSS";
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 }
