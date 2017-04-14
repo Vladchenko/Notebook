@@ -4,22 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/notes_list_item_margin">
+    android:outlineProvider="bounds"
+    android:clipToPadding="false">
+
+    <ImageView
+        android:id="@+id/pen_image_view"
+        android:layout_width="@dimen/notes_list_image_size"
+        android:layout_height="@dimen/notes_list_image_size"
+        app:srcCompat="@drawable/ic_create_black_24dp"
+        android:tint="@color/colorWhite"
+        android:background="@drawable/ic_brightness_1_black_24dp"
+        android:backgroundTint="@color/colorAccent"
+        android:scaleType="center"
+        android:layout_margin="5dp"/>
+
+    <TextView
+        android:id="@+id/note_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/notes_list_image_size"
+        android:layout_toRightOf="@id/pen_image_view"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="Note's title"
+        android:layout_alignTop="@+id/pen_image_view"
+        android:layout_alignBottom="@+id/pen_image_view" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="@dimen/notes_list_image_size"
-        android:layout_height="@dimen/notes_list_image_size"
-        app:srcCompat="@android:drawable/ic_menu_edit" />
-
-    <TextView
-        android:id="@+id/note_title_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/notes_list_image_size"
-        android:layout_toRightOf="@id/imageView"
-        android:layout_marginLeft="@dimen/notes_list_item_image_to_title_margin"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:text="Note's title" />
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:srcCompat="@android:color/transparent"
+        android:background="@color/colorAccent"
+        android:layout_below="@id/pen_image_view"/>
 
 </RelativeLayout>

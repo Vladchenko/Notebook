@@ -13,16 +13,16 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/note_title_textview"
+            android:id="@+id/note_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Note title:" />
 
         <EditText
-            android:id="@+id/note_title_edittext"
+            android:id="@+id/note_title_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/note_title_textview"
+            android:layout_below="@id/note_title_text_view"
             android:layout_marginBottom="@dimen/common_padding"
             android:background="@drawable/customborder"
             android:ems="10"
@@ -38,16 +38,16 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/note_content_title_textview"
+            android:id="@+id/note_content_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Note content:" />
 
         <EditText
-            android:id="@+id/note_content_edittext"
+            android:id="@+id/note_content_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/note_content_title_textview"
+            android:layout_below="@id/note_content_title_text_view"
             android:layout_weight="1"
             android:ems="10"
             android:gravity="start"
@@ -70,7 +70,7 @@
             <ImageButton
                 android:id="@+id/save_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_weight="1"
                 app:srcCompat="@android:drawable/checkbox_on_background" />
 

@@ -43,8 +43,8 @@ public class NoteActivity extends AppCompatActivity implements View.OnClickListe
         button.setOnClickListener(this);
         button = (ImageButton) findViewById(R.id.cancel_button);
         button.setOnClickListener(this);
-        noteTitleEditText = (EditText) findViewById(R.id.note_title_edittext);
-        noteContentTextEditText = (EditText) findViewById(R.id.note_content_edittext);
+        noteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
+        noteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
 
         mNoteId = intent.getLongExtra(DBNotesContract.Note._ID, NOTE_ABSENT);
         // Present Id says that there is a note to be edited.
@@ -63,12 +63,12 @@ public class NoteActivity extends AppCompatActivity implements View.OnClickListe
         java.util.Date currentDateTime = new java.util.Date();
         switch (v.getId()) {
             case R.id.save_button: {
-                noteTitleEditText = (EditText) findViewById(R.id.note_title_edittext);
+                noteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
                 if (noteTitleEditText.getText().length() == TEXT_ABSENT) {
                     showAlertDialog("Input a title for your note");
                     break;
                 }
-                noteContentTextEditText= (EditText) findViewById(R.id.note_content_edittext);
+                noteContentTextEditText= (EditText) findViewById(R.id.note_content_edit_text);
                 if (noteContentTextEditText.getText().length() == TEXT_ABSENT) {
                     showAlertDialog("Input a text for your note");
                     break;

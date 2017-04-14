@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.example.vladislav.notebook.database.DBHelper;
 import com.example.vladislav.notebook.database.DBNotesContract;
@@ -67,6 +68,14 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
         } catch (ParseException e) {
             Log.e(getClass().getSimpleName(), e.getMessage());
         }
+
+        TextView textView = (TextView) findViewById(R.id.recycler_empty_list_text_view);
+        if (mNotesHandler.getNotes().isEmpty()) {
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.GONE);
+        }
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(NotesListActivity.this,
