@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/notes_list_item_margin">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/notes_list_image_size"
+        android:layout_height="@dimen/notes_list_image_size"
+        app:srcCompat="@android:drawable/ic_menu_edit" />
+
+    <TextView
+        android:id="@+id/note_title_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/notes_list_image_size"
+        android:layout_toRightOf="@id/imageView"
+        android:layout_marginLeft="@dimen/notes_list_item_image_to_title_margin"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="Note's title" />
+
+</RelativeLayout>

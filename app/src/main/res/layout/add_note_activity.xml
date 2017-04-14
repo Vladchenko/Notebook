@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/common_padding"
+    android:orientation="vertical"
+    tools:context="com.example.vladislav.notebook.NotesListActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/note_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Note title:" />
+
+        <EditText
+            android:id="@+id/note_title_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/note_title_textview"
+            android:layout_marginBottom="@dimen/common_padding"
+            android:background="@drawable/customborder"
+            android:ems="10"
+            android:hint="Type a note title"
+            android:inputType="textPersonName" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/note_content_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Note content:" />
+
+        <EditText
+            android:id="@+id/note_content_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/note_content_title_textview"
+            android:layout_weight="1"
+            android:ems="10"
+            android:gravity="start"
+            android:hint="Type a text for the note"
+            android:inputType="textMultiLine"
+            android:background="@drawable/customborder"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@android:drawable/checkbox_on_background" />
+
+            <ImageButton
+                android:id="@+id/cancel_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@android:drawable/ic_delete" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
