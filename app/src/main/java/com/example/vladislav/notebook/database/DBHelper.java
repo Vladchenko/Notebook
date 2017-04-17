@@ -2,12 +2,11 @@ package com.example.vladislav.notebook.database;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.vladislav.notebook.Environment;
+import com.example.vladislav.notebook.Consts;
 import com.example.vladislav.notebook.bean.Note;
 
 import java.text.DateFormat;
@@ -33,15 +32,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private Date date;
     private static DBHelper instance;
-    private SimpleDateFormat sdf = new SimpleDateFormat(Environment.DATE_TIME_FORMAT);
+    private SimpleDateFormat sdf = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public static void createInstance(Context context) {
-        // Use in case of need to recreate a database.
-//        dropDataBase(context);
         if (instance == null) {
             instance = new DBHelper(context);
         }
@@ -82,18 +79,35 @@ public class DBHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(DBNotesContract.Note.TITLE, note.getmTitle());
-        values.put(DBNotesContract.Note.TEXT, note.getmText());
-        values.put(DBNotesContract.Note.TAG, note.getmTag());
-        values.put(DBNotesContract.Note.CREATION_DATE, sdf.format(note.getmCreationDate()));
-        values.put(DBNotesContract.Note.MODIFICATION_DATE, sdf.format(note.getmModificationDate()));
+        values.put(DBNotesContract.Note.TITLE, note.getTitle());
+        values.put(DBNotesContract.Note.TEXT, note.getText());
+        values.put(DBNotesContract.Note.TAG, note.getTag());
+        values.put(DBNotesContract.Note.CREATION_DATE, sdf.format(note.getCreationDate()));
+        values.put(DBNotesContract.Note.MODIFICATION_DATE, sdf.format(note.getModificationDate()));
 
         return values;
     }
 
+    private void parseCursor(Note note, Cursor cursor) throws ParseException {
+
+        DateFormat format = new SimpleDateFormat(Consts.DATE_TIME_FORMAT, Locale.ENGLISH);
+
+        note.setID(cursor.getLong(cursor.getColumnIndexOrThrow(DBNotesContract.Note._ID)));
+        note.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(DBNotesContract.Note.TITLE)));
+        note.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBNotesContract.Note.TEXT)));
+        note.setTag(cursor.getString(cursor.getColumnIndexOrThrow(DBNotesContract.Note.TAG)));
+
+        date = format.parse(cursor.getString(
+                cursor.getColumnIndexOrThrow(DBNotesContract.Note.CREATION_DATE)));
+        note.setCreationDate(date);
+        date = format.parse(cursor.getString(
+                cursor.getColumnIndexOrThrow(DBNotesContract.Note.MODIFICATION_DATE)));
+        note.setModificationDate(date);
+
+    }
+
     public List<Note> loadAllNotesFromDataBase() throws ParseException {
 
-        DateFormat format = new SimpleDateFormat(Environment.DATE_TIME_FORMAT, Locale.ENGLISH);
         LinkedList<Note> notes = new LinkedList<>();
         Note note = null;
         date = null;
@@ -109,22 +123,12 @@ public class DBHelper extends SQLiteOpenHelper {
                         null);
 
         while (cursor.moveToNext()) {
-
             note = new Note();
-
-            note.setmID(Long.parseLong(cursor.getString(0)));
-            note.setmTitle(cursor.getString(1));
-            note.setmText(cursor.getString(2));
-            note.setmTag(cursor.getString(3));
-
-            date = format.parse(cursor.getString(4));
-            note.setmCreationDate(date);
-            date = format.parse(cursor.getString(5));
-            note.setmModificationDate(date);
-
+            parseCursor(note, cursor);
             notes.add(note);
-
         }
+
+        cursor.close();
 
         return notes;
 

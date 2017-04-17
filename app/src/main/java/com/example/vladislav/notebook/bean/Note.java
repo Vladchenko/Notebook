@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class Note {
 
-    private long mID;                 // ID of a current note.
+    private long mID;                // ID of a current note.
     private String mTitle;           // Title of a note to be created.
     private String mText;            // Text of a note to be created.
     private String mTag;             // Some mTag not sure what for yet.
@@ -18,59 +18,90 @@ public class Note {
 
     public Note() {}
 
-    public Note(String mTitle, String mText, String mTag, Date mCreationDate, Date mModificationDate) {
-        this.mTitle = mTitle;
-        this.mText = mText;
-        this.mTag = mTag;
-        this.mCreationDate = mCreationDate;
-        this.mModificationDate = mModificationDate;
+    public Note(String title, String text, String tag, Date сreationDate, Date modificationDate) {
+        this.mTitle = title;
+        this.mText = text;
+        this.mTag = tag;
+        this.mCreationDate = сreationDate;
+        this.mModificationDate = modificationDate;
     }
 
-    public String getmTitle() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Note note = (Note) o;
+
+        if (!mTitle.equals(note.mTitle)) return false;
+        if (!mText.equals(note.mText)) return false;
+        return mTag != null ? mTag.equals(note.mTag) : note.mTag == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mTitle.hashCode();
+        result = 31 * result + mText.hashCode();
+        result = 31 * result + (mTag != null ? mTag.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Note{" +
+                "mTitle='" + mTitle + '\'' +
+                ", mText='" + mText + '\'' +
+                ", mTag='" + mTag + '\'' +
+                '}';
+    }
+
+    public String getTitle() {
         return mTitle;
     }
 
-    public void setmTitle(String mTitle) {
+    public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
-    public String getmText() {
+    public String getText() {
         return mText;
     }
 
-    public void setmText(String mText) {
+    public void setText(String mText) {
         this.mText = mText;
     }
 
-    public String getmTag() {
+    public String getTag() {
         return mTag;
     }
 
-    public void setmTag(String mTag) {
+    public void setTag(String mTag) {
         this.mTag = mTag;
     }
 
-    public Date getmCreationDate() {
+    public Date getCreationDate() {
         return mCreationDate;
     }
 
-    public void setmCreationDate(Date mCreationDate) {
+    public void setCreationDate(Date mCreationDate) {
         this.mCreationDate = mCreationDate;
     }
 
-    public Date getmModificationDate() {
+    public Date getModificationDate() {
         return mModificationDate;
     }
 
-    public void setmModificationDate(Date mModificationDate) {
+    public void setModificationDate(Date mModificationDate) {
         this.mModificationDate = mModificationDate;
     }
 
-    public long getmID() {
+    public long getID() {
         return mID;
     }
 
-    public void setmID(long mID) {
+    public void setID(long mID) {
         this.mID = mID;
     }
+
 }

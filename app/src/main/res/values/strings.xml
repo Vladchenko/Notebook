@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Notebook</string>
+    <string name="no_notes_found_message">No notes found</string>
 </resources>

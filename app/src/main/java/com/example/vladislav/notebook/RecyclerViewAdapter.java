@@ -19,7 +19,7 @@ import java.util.List;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
     private List<Note> mNotesList;
-    private DateFormat dateFormat = new SimpleDateFormat(Environment.DATE_TIME_FORMAT);
+    private DateFormat dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
 
     public RecyclerViewAdapter() {
     }
@@ -35,8 +35,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(NoteListItemViewHolder holder, int position) {
         Note note = mNotesList.get(position);
-        holder.titleTextView.setText(note.getmTitle());
-        holder.modification_timing_text_view.setText(dateFormat.format(note.getmModificationDate()));
+        holder.titleTextView.setText(note.getTitle());
+        holder.modification_timing_text_view.setText(dateFormat.format(note.getModificationDate()));
     }
 
     @Override
