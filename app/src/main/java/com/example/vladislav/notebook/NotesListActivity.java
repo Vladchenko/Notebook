@@ -20,13 +20,59 @@ import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NotesListActivity extends AppCompatActivity implements View.OnClickListener {
+public class NotesListActivity extends AppCompatActivity {
 
     private EditText editText = null;
     private ImageButton searchButton = null;
+    private ImageButton addButton = null;
+    private ImageButton commitSearchButton = null;
     private List<Note> mNotesList = new LinkedList<>();
     private RecyclerViewAdapter mAdapter;
     private boolean search = false;
+
+    private View.OnClickListener mClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+
+            switch (v.getId()) {
+                case (R.id.add_button): {
+                    editText.setVisibility(View.GONE);
+                    searchButton.setVisibility(View.VISIBLE);
+                    search = false;
+                    Intent intent = NoteActivity.newIntent(NotesListActivity.this);
+                    startActivityForResult(intent, 1);
+                    break;
+                }
+                case (R.id.search_button): {
+                    if (!search) {
+                        editText.setVisibility(View.VISIBLE);
+                        searchButton.setVisibility(View.GONE);
+                        commitSearchButton.setVisibility(View.VISIBLE);
+                        addButton.setVisibility(View.GONE);
+                        search = true;
+                    } else {
+                        editText.setVisibility(View.GONE);
+                        searchButton.setVisibility(View.VISIBLE);
+                        commitSearchButton.setVisibility(View.GONE);
+                        addButton.setVisibility(View.VISIBLE);
+                        search = false;
+                    }
+                    break;
+                }
+                case (R.id.delete_button): {
+                    if (search) {
+                        editText.setVisibility(View.GONE);
+                        searchButton.setVisibility(View.VISIBLE);
+                        commitSearchButton.setVisibility(View.GONE);
+                        addButton.setVisibility(View.VISIBLE);
+                        search = false;
+                    }
+                    break;
+                }
+            }
+        }
+    };
 
     public static Intent newIntent(Context context) {
         Intent intent = new Intent(context, NotesListActivity.class);
@@ -39,6 +85,8 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.notes_list_activity);
         editText = (EditText) findViewById(R.id.search_edit_text);
         searchButton = (ImageButton) findViewById(R.id.search_button);
+        addButton = (ImageButton) findViewById(R.id.add_button);
+        commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
         addButtonListeners();
     }
 
@@ -80,45 +128,12 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onClick(View v) {
-
-        switch (v.getId()) {
-            case (R.id.add_button): {
-                editText.setVisibility(View.GONE);
-                searchButton.setVisibility(View.VISIBLE);
-                search = false;
-                Intent intent = NoteActivity.newIntent(this);
-                startActivityForResult(intent, 1);
-                break;
-            }
-            case (R.id.search_button): {
-                if (!search) {
-                    editText.setVisibility(View.VISIBLE);
-                    searchButton.setVisibility(View.GONE);
-                    search = true;
-                } else {
-                    editText.setVisibility(View.GONE);
-                    searchButton.setVisibility(View.VISIBLE);
-                    search = false;
-                }
-                break;
-            }
-            case (R.id.delete_button): {
-                if (search) {
-                    editText.setVisibility(View.GONE);
-                    searchButton.setVisibility(View.VISIBLE);
-                    search = false;
-                }
-                break;
-            }
-        }
-    }
-
-    @Override
     public void onBackPressed() {
         if (search) {
             editText.setVisibility(View.GONE);
             searchButton.setVisibility(View.VISIBLE);
+            commitSearchButton.setVisibility(View.GONE);
+            addButton.setVisibility(View.VISIBLE);
             search = false;
         } else {
             super.onBackPressed();
@@ -127,11 +142,11 @@ public class NotesListActivity extends AppCompatActivity implements View.OnClick
 
     private void addButtonListeners() {
         ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
-        addButton.setOnClickListener(this);
+        addButton.setOnClickListener(this.mClickListener);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.delete_button);
-        deleteButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this.mClickListener);
         ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-        searchButton.setOnClickListener(this);
+        searchButton.setOnClickListener(this.mClickListener);
     }
 
     private void setupRecyclerView() {
