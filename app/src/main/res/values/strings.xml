@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Notebook</string>
     <string name="no_notes_found_message">No notes found</string>
+    <string name="empty_notes_list_message">Add a note by clicking + button</string>
 </resources>

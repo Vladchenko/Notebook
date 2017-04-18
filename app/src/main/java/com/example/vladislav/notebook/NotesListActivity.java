@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -46,16 +47,18 @@ public class NotesListActivity extends AppCompatActivity {
                 }
                 case (R.id.search_button): {
                     if (!isSearched()) {
-                        searchEditText.setVisibility(View.VISIBLE);
-                        searchButton.setVisibility(View.GONE);
-                        commitSearchButton.setVisibility(View.VISIBLE);
                         addButton.setVisibility(View.GONE);
+                        searchButton.setVisibility(View.GONE);
+                        searchEditText.setVisibility(View.VISIBLE);
+                        commitSearchButton.setVisibility(View.VISIBLE);
+
                         setSearched(true);
                     } else {
                         searchEditText.setVisibility(View.GONE);
-                        searchButton.setVisibility(View.VISIBLE);
                         commitSearchButton.setVisibility(View.GONE);
+                        searchButton.setVisibility(View.VISIBLE);
                         addButton.setVisibility(View.VISIBLE);
+                        notifyIfListEmpty();
                         setSearched(false);
                     }
                     break;
@@ -63,21 +66,18 @@ public class NotesListActivity extends AppCompatActivity {
                 case (R.id.delete_button): {
                     if (isSearched()) {
                         searchEditText.setVisibility(View.GONE);
-                        searchButton.setVisibility(View.VISIBLE);
                         commitSearchButton.setVisibility(View.GONE);
                         addButton.setVisibility(View.VISIBLE);
+                        searchButton.setVisibility(View.VISIBLE);
                         setSearched(false);
+                        loadNotesListAndUpdateAdapter(null);
+                    } else {
+                        // TODO Implement deletion of a note
                     }
                     break;
                 }
                 case (R.id.commit_search_button): {
-                    try {
-                        mNotesList = DBHelper.getInstance().loadNotesFromDataBase(
-                                searchEditText.getText().toString());
-                    } catch (ParseException e) {
-                        Log.e(getClass().getSimpleName(), e.getMessage());
-                    }
-                    mAdapter.update(mNotesList);
+                    loadNotesListAndUpdateAdapter(searchEditText.getText().toString());
                     break;
                 }
             }
@@ -97,6 +97,7 @@ public class NotesListActivity extends AppCompatActivity {
         searchButton = (ImageButton) findViewById(R.id.search_button);
         addButton = (ImageButton) findViewById(R.id.add_button);
         commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
+        mAdapter = new RecyclerViewAdapter(this);
         addButtonListeners();
     }
 
@@ -104,14 +105,8 @@ public class NotesListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        // Loading notes from a database.
-        try {
-            mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
-        } catch (ParseException e) {
-            Log.e(getClass().getSimpleName(), e.getMessage());
-        }
-
-        notifyIfListEmpty();
+        // Loading notes from a database, sending it to adapter and notifying user if list is empty.
+        loadNotesListAndUpdateAdapter(null);
 
         setupRecyclerView();
 
@@ -122,12 +117,7 @@ public class NotesListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == DBHelper.NEW_NOTE_ADDED) {
             // Loading notes from a database.
-            try {
-                mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
-            } catch (ParseException e) {
-                Log.e(getClass().getSimpleName(), e.getMessage());
-            }
-            mAdapter.update(mNotesList);
+            loadNotesListAndUpdateAdapter(null);
         }
     }
 
@@ -138,12 +128,7 @@ public class NotesListActivity extends AppCompatActivity {
             searchButton.setVisibility(View.VISIBLE);
             commitSearchButton.setVisibility(View.GONE);
             addButton.setVisibility(View.VISIBLE);
-            try {
-                mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
-            } catch (ParseException e) {
-                Log.e(getClass().getSimpleName(), e.getMessage());
-            }
-            mAdapter.update(mNotesList);
+            loadNotesListAndUpdateAdapter(null);
             setSearched(false);
         } else {
             super.onBackPressed();
@@ -151,6 +136,7 @@ public class NotesListActivity extends AppCompatActivity {
     }
 
     private void addButtonListeners() {
+
         ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
         addButton.setOnClickListener(this.mClickListener);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.delete_button);
@@ -159,6 +145,22 @@ public class NotesListActivity extends AppCompatActivity {
         searchButton.setOnClickListener(this.mClickListener);
         ImageButton commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
         commitSearchButton.setOnClickListener(this.mClickListener);
+
+        searchEditText.setImeActionLabel("Custom text", KeyEvent.KEYCODE_ENTER);
+        searchEditText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    loadNotesListAndUpdateAdapter(searchEditText.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     private void setupRecyclerView() {
@@ -167,8 +169,6 @@ public class NotesListActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
         recyclerView.addOnItemTouchListener(createRecyclerItemClickListener());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new RecyclerViewAdapter();
-        mAdapter.update(mNotesList);
         recyclerView.setAdapter(mAdapter);
 
     }
@@ -198,11 +198,27 @@ public class NotesListActivity extends AppCompatActivity {
         // Showing a message that notes list is empty when it is so.
         TextView textView = (TextView) findViewById(R.id.recycler_empty_list_text_view);
         if (mNotesList.isEmpty()) {
+            if (isSearched()) {
+                textView.setText(getResources().getText(R.string.no_notes_found_message));
+            } else {
+                textView.setText(getResources().getText(R.string.empty_notes_list_message));
+            }
             textView.setVisibility(View.VISIBLE);
         } else {
             textView.setVisibility(View.GONE);
         }
 
+    }
+
+    private void loadNotesListAndUpdateAdapter(String searchCriterion) {
+        try {
+            mNotesList = DBHelper.getInstance().loadNotesFromDataBase(
+                    searchCriterion);
+        } catch (ParseException e) {
+            Log.e(getClass().getSimpleName(), e.getMessage());
+        }
+        notifyIfListEmpty();
+        mAdapter.update(mNotesList);
     }
 
     public boolean isSearched() {

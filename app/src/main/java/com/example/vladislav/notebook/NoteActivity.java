@@ -8,9 +8,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.vladislav.notebook.bean.Note;
 import com.example.vladislav.notebook.database.DBHelper;
@@ -89,6 +91,12 @@ public class NoteActivity extends AppCompatActivity {
             noteContentText = intent.getStringExtra(DBNotesContract.Note.TEXT);
             noteContentTextEditText.setText(noteContentText);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(this,"678", Toast.LENGTH_SHORT).show();
+        return true;
     }
 
     private ContentValues assignNoteContentValues() {

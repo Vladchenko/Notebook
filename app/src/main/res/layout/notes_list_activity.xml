@@ -34,7 +34,7 @@
             android:id="@+id/recycler_empty_list_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add a note by clicking + button"
+            android:text="@string/empty_notes_list_message"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>

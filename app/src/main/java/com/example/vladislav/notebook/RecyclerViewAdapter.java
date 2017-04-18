@@ -1,14 +1,24 @@
 package com.example.vladislav.notebook;
 
+import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.vladislav.notebook.bean.Note;
+import com.example.vladislav.notebook.database.DBHelper;
+import com.example.vladislav.notebook.database.DBNotesContract;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -18,10 +28,14 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
+    private Context context;
     private List<Note> mNotesList;
     private DateFormat dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
+    private final int editMenuItemId = 604049931;
+    private final int deleteMenuItemId = 639592949;
 
-    public RecyclerViewAdapter() {
+    public RecyclerViewAdapter(Context context) {
+        this.context = context;
     }
 
     @Override
@@ -53,15 +67,53 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
-    public class NoteListItemViewHolder extends RecyclerView.ViewHolder {
+    public class NoteListItemViewHolder extends RecyclerView.ViewHolder
+            implements View.OnCreateContextMenuListener
+    {
 
         TextView titleTextView;
         TextView modification_timing_text_view;
+        MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                System.out.println(item.getItemId());
+                switch (item.getItemId()) {
+                    case editMenuItemId: {
+                        break;
+                    }
+                    case deleteMenuItemId: {
+                        // Delete a current note from a database.
+                        DBHelper.getInstance().getWritableDatabase().delete(
+                                DBNotesContract.Note.TABLE_NAME,
+                                DBNotesContract.Note.TITLE + " = \""
+                                        + titleTextView.getText().toString() + "\"",
+                                null);
+                        // Loading a notes list again from a database.
+                        try {
+                            mNotesList = DBHelper.getInstance().loadNotesFromDataBase(null);
+                        } catch (ParseException e) {
+                            Log.e(getClass().getSimpleName(), e.getMessage());
+                        }
+                        update(mNotesList);
+                        break;
+                    }
+                }
+                return true;
+            }
+        };
 
         public NoteListItemViewHolder(View itemView) {
             super(itemView);
             titleTextView = (TextView) itemView.findViewById(R.id.note_title_text_view);
             modification_timing_text_view = (TextView) itemView.findViewById(R.id.modification_timing_text_view);
+            itemView.findViewById(R.id.note_list_item).setOnCreateContextMenuListener(this);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v,
+                                        ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add(0, editMenuItemId, 0, "Edit").setOnMenuItemClickListener(onMenuItemClickListener);
+            menu.add(0, deleteMenuItemId, 0, "Delete").setOnMenuItemClickListener(onMenuItemClickListener);
         }
 
     }
