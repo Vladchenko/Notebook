@@ -22,13 +22,13 @@ import java.util.List;
 
 public class NotesListActivity extends AppCompatActivity {
 
-    private EditText editText = null;
+    private EditText searchEditText = null;
     private ImageButton searchButton = null;
     private ImageButton addButton = null;
     private ImageButton commitSearchButton = null;
     private List<Note> mNotesList = new LinkedList<>();
     private RecyclerViewAdapter mAdapter;
-    private boolean search = false;
+    private boolean searched = false;
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
 
@@ -37,37 +37,47 @@ public class NotesListActivity extends AppCompatActivity {
 
             switch (v.getId()) {
                 case (R.id.add_button): {
-                    editText.setVisibility(View.GONE);
+                    searchEditText.setVisibility(View.GONE);
                     searchButton.setVisibility(View.VISIBLE);
-                    search = false;
+                    setSearched(false);
                     Intent intent = NoteActivity.newIntent(NotesListActivity.this);
                     startActivityForResult(intent, 1);
                     break;
                 }
                 case (R.id.search_button): {
-                    if (!search) {
-                        editText.setVisibility(View.VISIBLE);
+                    if (!isSearched()) {
+                        searchEditText.setVisibility(View.VISIBLE);
                         searchButton.setVisibility(View.GONE);
                         commitSearchButton.setVisibility(View.VISIBLE);
                         addButton.setVisibility(View.GONE);
-                        search = true;
+                        setSearched(true);
                     } else {
-                        editText.setVisibility(View.GONE);
+                        searchEditText.setVisibility(View.GONE);
                         searchButton.setVisibility(View.VISIBLE);
                         commitSearchButton.setVisibility(View.GONE);
                         addButton.setVisibility(View.VISIBLE);
-                        search = false;
+                        setSearched(false);
                     }
                     break;
                 }
                 case (R.id.delete_button): {
-                    if (search) {
-                        editText.setVisibility(View.GONE);
+                    if (isSearched()) {
+                        searchEditText.setVisibility(View.GONE);
                         searchButton.setVisibility(View.VISIBLE);
                         commitSearchButton.setVisibility(View.GONE);
                         addButton.setVisibility(View.VISIBLE);
-                        search = false;
+                        setSearched(false);
                     }
+                    break;
+                }
+                case (R.id.commit_search_button): {
+                    try {
+                        mNotesList = DBHelper.getInstance().loadNotesFromDataBase(
+                                searchEditText.getText().toString());
+                    } catch (ParseException e) {
+                        Log.e(getClass().getSimpleName(), e.getMessage());
+                    }
+                    mAdapter.update(mNotesList);
                     break;
                 }
             }
@@ -83,7 +93,7 @@ public class NotesListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notes_list_activity);
-        editText = (EditText) findViewById(R.id.search_edit_text);
+        searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchButton = (ImageButton) findViewById(R.id.search_button);
         addButton = (ImageButton) findViewById(R.id.add_button);
         commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
@@ -96,18 +106,12 @@ public class NotesListActivity extends AppCompatActivity {
 
         // Loading notes from a database.
         try {
-            mNotesList = ((LinkedList) DBHelper.getInstance().loadAllNotesFromDataBase());
+            mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
         } catch (ParseException e) {
             Log.e(getClass().getSimpleName(), e.getMessage());
         }
 
-        // Showing a message that notes list is empty when it is so.
-        TextView textView = (TextView) findViewById(R.id.recycler_empty_list_text_view);
-        if (mNotesList.isEmpty()) {
-            textView.setVisibility(View.VISIBLE);
-        } else {
-            textView.setVisibility(View.GONE);
-        }
+        notifyIfListEmpty();
 
         setupRecyclerView();
 
@@ -119,7 +123,7 @@ public class NotesListActivity extends AppCompatActivity {
         if (resultCode == DBHelper.NEW_NOTE_ADDED) {
             // Loading notes from a database.
             try {
-                mNotesList = ((LinkedList) DBHelper.getInstance().loadAllNotesFromDataBase());
+                mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
             } catch (ParseException e) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
@@ -129,12 +133,18 @@ public class NotesListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (search) {
-            editText.setVisibility(View.GONE);
+        if (isSearched()) {
+            searchEditText.setVisibility(View.GONE);
             searchButton.setVisibility(View.VISIBLE);
             commitSearchButton.setVisibility(View.GONE);
             addButton.setVisibility(View.VISIBLE);
-            search = false;
+            try {
+                mNotesList = ((LinkedList) DBHelper.getInstance().loadNotesFromDataBase(null));
+            } catch (ParseException e) {
+                Log.e(getClass().getSimpleName(), e.getMessage());
+            }
+            mAdapter.update(mNotesList);
+            setSearched(false);
         } else {
             super.onBackPressed();
         }
@@ -147,6 +157,8 @@ public class NotesListActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(this.mClickListener);
         ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
         searchButton.setOnClickListener(this.mClickListener);
+        ImageButton commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
+        commitSearchButton.setOnClickListener(this.mClickListener);
     }
 
     private void setupRecyclerView() {
@@ -181,4 +193,23 @@ public class NotesListActivity extends AppCompatActivity {
                 });
     }
 
+    private void notifyIfListEmpty() {
+
+        // Showing a message that notes list is empty when it is so.
+        TextView textView = (TextView) findViewById(R.id.recycler_empty_list_text_view);
+        if (mNotesList.isEmpty()) {
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.GONE);
+        }
+
+    }
+
+    public boolean isSearched() {
+        return searched;
+    }
+
+    public void setSearched(boolean searched) {
+        this.searched = searched;
+    }
 }

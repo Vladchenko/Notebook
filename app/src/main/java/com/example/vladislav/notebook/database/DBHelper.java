@@ -106,17 +106,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public List<Note> loadAllNotesFromDataBase() throws ParseException {
+    public List<Note> loadNotesFromDataBase(String searchCriterion) throws ParseException {
 
         LinkedList<Note> notes = new LinkedList<>();
         Note note = null;
         date = null;
+        String whereString = null;
+
+        if (searchCriterion != null
+                && !searchCriterion.isEmpty()) {
+            whereString = DBNotesContract.Note.TITLE + " = " + searchCriterion;
+        }
 
         Cursor cursor =
                 DBHelper.getInstance().getReadableDatabase().query(
                         DBNotesContract.Note.TABLE_NAME,
                         null,
-                        null,
+                        whereString,
                         null,
                         null,
                         null,
