@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -95,7 +96,6 @@ public class NoteActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(this,"678", Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -114,6 +114,7 @@ public class NoteActivity extends AppCompatActivity {
         java.util.Date currentDateTime = new java.util.Date();
 
         if (mNoteId != NOTE_ABSENT) {
+            // Updating an existing note.
             DBHelper.getInstance().getWritableDatabase().update(
                     DBNotesContract.Note.TABLE_NAME,
                     assignNoteContentValues(),
@@ -121,22 +122,39 @@ public class NoteActivity extends AppCompatActivity {
                     null);
             Log.i(getClass().getSimpleName(), "Note with id = " + mNoteId + " is updated.");
         } else {
-            // Populating a note bean for further saving it to data base.
-            note = new Note(
-                    noteTitleEditText.getText().toString(),
-                    noteContentTextEditText.getText().toString(),
-                    "",
-                    new Date(currentDateTime.getTime()),
-                    new Date(currentDateTime.getTime())
-            );
-            // Saving a note to a database.
-            DBHelper.getInstance().getWritableDatabase().insert(
+            // Checking if a note with such a title exists and if so - do not add it and inform a user.
+            Cursor cursor = DBHelper.getInstance().getReadableDatabase().query(
                     DBNotesContract.Note.TABLE_NAME,
+                    new String[]{DBNotesContract.Note.TITLE},
+                    DBNotesContract.Note.TITLE + " = " + noteTitleEditText.getText().toString(),
                     null,
-                    DBHelper.getInstance().setNoteValues(note));
-            setResult(DBHelper.NEW_NOTE_ADDED);
-            Log.i(getClass().getSimpleName(), "Note titled " + noteTitleEditText.getText().toString()
-                    + " has been saved to a database.");
+                    null,
+                    null,
+                    null
+                    );
+            if (cursor.getCount() > 0) {
+                Toast.makeText(this, getResources().getText(R.string.note_exists_message),
+                        Toast.LENGTH_SHORT).show();
+                Log.i(getClass().getSimpleName(), "Note titled " + noteTitleEditText.getText().toString()
+                        + " exists in a database.");
+            } else {
+                // Populating a note bean for further saving it to data base.
+                note = new Note(
+                        noteTitleEditText.getText().toString(),
+                        noteContentTextEditText.getText().toString(),
+                        "",
+                        new Date(currentDateTime.getTime()),
+                        new Date(currentDateTime.getTime())
+                );
+                // Saving a note to a database.
+                DBHelper.getInstance().getWritableDatabase().insert(
+                        DBNotesContract.Note.TABLE_NAME,
+                        null,
+                        DBHelper.getInstance().setNoteValues(note));
+                setResult(DBHelper.NEW_NOTE_ADDED);
+                Log.i(getClass().getSimpleName(), "Note titled " + noteTitleEditText.getText().toString()
+                        + " has been saved to a database.");
+            }
         }
 
     }

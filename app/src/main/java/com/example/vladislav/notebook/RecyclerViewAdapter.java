@@ -94,6 +94,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                         } catch (ParseException e) {
                             Log.e(getClass().getSimpleName(), e.getMessage());
                         }
+                        // Updating a list.
                         update(mNotesList);
                         break;
                     }
