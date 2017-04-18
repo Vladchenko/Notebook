@@ -1,6 +1,7 @@
 package com.example.vladislav.notebook;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -29,6 +30,8 @@ import java.util.List;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
     private Context context;
+    // Position of a clicked item of a notes list in a recyclerview.
+    private int position = -1;
     private List<Note> mNotesList;
     private DateFormat dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
     private final int editMenuItemId = 604049931;
@@ -67,6 +70,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
     public class NoteListItemViewHolder extends RecyclerView.ViewHolder
             implements View.OnCreateContextMenuListener
     {
@@ -76,9 +83,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                System.out.println(item.getItemId());
+//                System.out.println(item.getItemId());
                 switch (item.getItemId()) {
                     case editMenuItemId: {
+                        Intent intent = NoteActivity.newIntent(context);
+                        intent.putExtra(DBNotesContract.Note._ID,
+                                mNotesList.get(getAdapterPosition()).getID());
+                        intent.putExtra(DBNotesContract.Note.TITLE,
+                                mNotesList.get(getAdapterPosition()).getTitle());
+                        intent.putExtra(DBNotesContract.Note.TEXT,
+                                mNotesList.get(getAdapterPosition()).getText());
+                        context.startActivity(intent);
                         break;
                     }
                     case deleteMenuItemId: {

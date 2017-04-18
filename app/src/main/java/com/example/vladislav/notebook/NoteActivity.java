@@ -19,8 +19,10 @@ import com.example.vladislav.notebook.bean.Note;
 import com.example.vladislav.notebook.database.DBHelper;
 import com.example.vladislav.notebook.database.DBNotesContract;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
 
@@ -30,6 +32,8 @@ public class NoteActivity extends AppCompatActivity {
     private long mNoteId = NOTE_ABSENT;
     private EditText noteTitleEditText;
     private EditText noteContentTextEditText;
+    private Note note;
+    private Date currentDateTime;
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
 
@@ -50,7 +54,11 @@ public class NoteActivity extends AppCompatActivity {
                     }
                     // If note id present, it means user calls this note for editing,
                     // so make an update, when editing is done (checkmark is clicked in activity).
-                    updateOrAddNote();
+                    try {
+                        updateOrAddNote();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     finish();
                     break;
                 }
@@ -108,12 +116,10 @@ public class NoteActivity extends AppCompatActivity {
         return contentValues;
     }
 
-    private void updateOrAddNote() {
-
-        Note note;
-        java.util.Date currentDateTime = new java.util.Date();
+    private void updateOrAddNote() throws ParseException {
 
         if (mNoteId != NOTE_ABSENT) {
+
             // Updating an existing note.
             DBHelper.getInstance().getWritableDatabase().update(
                     DBNotesContract.Note.TABLE_NAME,
@@ -121,40 +127,28 @@ public class NoteActivity extends AppCompatActivity {
                     DBNotesContract.Note._ID + "=" + mNoteId,
                     null);
             Log.i(getClass().getSimpleName(), "Note with id = " + mNoteId + " is updated.");
+
         } else {
-            // Checking if a note with such a title exists and if so - do not add it and inform a user.
-            Cursor cursor = DBHelper.getInstance().getReadableDatabase().query(
-                    DBNotesContract.Note.TABLE_NAME,
-                    new String[]{DBNotesContract.Note.TITLE},
-                    DBNotesContract.Note.TITLE + " = " + noteTitleEditText.getText().toString(),
-                    null,
-                    null,
-                    null,
-                    null
-                    );
-            if (cursor.getCount() > 0) {
+
+            // Checking if a note with such a title exists and if so - do not add it and inform
+            // a user.
+            List<Note> notesList = DBHelper.getInstance().loadNotesFromDataBase(
+                    noteTitleEditText.getText().toString());
+
+            // If notesList is not empty, that means note with such a title already exists.
+            if (!notesList.isEmpty()) {
                 Toast.makeText(this, getResources().getText(R.string.note_exists_message),
                         Toast.LENGTH_SHORT).show();
-                Log.i(getClass().getSimpleName(), "Note titled " + noteTitleEditText.getText().toString()
+                Log.i(getClass().getSimpleName(), "Note titled "
+                        + noteTitleEditText.getText().toString()
                         + " exists in a database.");
             } else {
-                // Populating a note bean for further saving it to data base.
-                note = new Note(
-                        noteTitleEditText.getText().toString(),
-                        noteContentTextEditText.getText().toString(),
-                        "",
-                        new Date(currentDateTime.getTime()),
-                        new Date(currentDateTime.getTime())
-                );
-                // Saving a note to a database.
-                DBHelper.getInstance().getWritableDatabase().insert(
-                        DBNotesContract.Note.TABLE_NAME,
-                        null,
-                        DBHelper.getInstance().setNoteValues(note));
-                setResult(DBHelper.NEW_NOTE_ADDED);
-                Log.i(getClass().getSimpleName(), "Note titled " + noteTitleEditText.getText().toString()
-                        + " has been saved to a database.");
+                addNewNote();
+                Log.i(getClass().getSimpleName(), "Note titled "
+                        + noteTitleEditText.getText().toString()
+                        + " is added to a database.");
             }
+
         }
 
     }
@@ -186,6 +180,24 @@ public class NoteActivity extends AppCompatActivity {
         AlertDialog alertdialog = builder.create();
         alertdialog.show();
 
+    }
+
+    private void addNewNote() {
+        currentDateTime = new Date();
+        // Populating a note bean for further saving it to a data base.
+        note = new Note(
+                noteTitleEditText.getText().toString(),
+                noteContentTextEditText.getText().toString(),
+                "",
+                new Date(currentDateTime.getTime()),
+                new Date(currentDateTime.getTime())
+        );
+        // Saving a note to a database.
+        DBHelper.getInstance().getWritableDatabase().insert(
+                DBNotesContract.Note.TABLE_NAME,
+                null,
+                DBHelper.getInstance().setNoteValues(note));
+        setResult(DBHelper.NEW_NOTE_ADDED);
     }
 
 }

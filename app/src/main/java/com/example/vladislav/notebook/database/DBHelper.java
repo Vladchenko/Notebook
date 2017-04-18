@@ -40,7 +40,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static void createInstance(Context context) {
         if (instance == null) {
-            dropDataBase(context);
             instance = new DBHelper(context);
         }
     }
@@ -107,6 +106,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Loading the notes on a specific criterion, i.e filter or all the notes. Criterion filters
+     * the notes on a DBNotesContract.Note.TITLE column.
+     *
+     * @param searchCriterion - value that is used in a where clause in a query like
+     *                        "Where title = "Note1" ". Note1 in this case is a searchCriterion.
+     * @return list of notes - List<Note>
+     * @throws ParseException - thrown when parsing a cursor is wrong.
+     */
     public List<Note> loadNotesFromDataBase(String searchCriterion) throws ParseException {
 
         LinkedList<Note> notes = new LinkedList<>();
@@ -114,9 +122,13 @@ public class DBHelper extends SQLiteOpenHelper {
         date = null;
         String whereString = null;
 
+        // When a searchCriterion is not null and not empty, it will be like
+        // "WHERE title = "Some value" ", else it is null and query is to provide a list of all
+        // the notes present in data base.
+
         if (searchCriterion != null
                 && !searchCriterion.isEmpty()) {
-            whereString = DBNotesContract.Note.TITLE + " = " + searchCriterion;
+            whereString = DBNotesContract.Note.TITLE + " = " + "\"" + searchCriterion + "\"";
         }
 
         Cursor cursor =
