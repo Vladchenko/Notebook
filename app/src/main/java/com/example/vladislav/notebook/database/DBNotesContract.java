@@ -25,7 +25,7 @@ public final class DBNotesContract {
     public static final String SQL_CREATE_TABLE_NOTES =
             "CREATE TABLE " + Note.TABLE_NAME + " (" +
                     Note._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    Note.TITLE + " TEXT," +
+                    Note.TITLE + " TEXT UNIQUE NOT NULL," +
                     Note.TEXT + " TEXT," +
                     Note.TAG + " TEXT," +
                     Note.CREATION_DATE + " TEXT," +

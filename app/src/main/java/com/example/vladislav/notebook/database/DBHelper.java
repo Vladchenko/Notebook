@@ -40,6 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static void createInstance(Context context) {
         if (instance == null) {
+            dropDataBase(context);
             instance = new DBHelper(context);
         }
     }
