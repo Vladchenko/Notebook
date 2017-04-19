@@ -15,6 +15,7 @@ public class Note {
     private String mTag;             // Some mTag not sure what for yet.
     private Date mCreationDate;      // Date and time when a note was created.
     private Date mModificationDate;  // Date and time when a note was modified.
+    private boolean delete;          // Flag that says if a note is to be deleted.
 
     public Note() {}
 
@@ -102,6 +103,14 @@ public class Note {
 
     public void setID(long mID) {
         this.mID = mID;
+    }
+
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
     }
 
 }

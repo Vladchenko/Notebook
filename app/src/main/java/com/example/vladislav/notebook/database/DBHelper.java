@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    // TODO Remove hardcoded stuff in layouts
     public static final String DATABASE_NAME = "Notes.db";
     public static final int DATABASE_VERSION = 1;
     public static final Logger log = Logger.getLogger("DBHelper");

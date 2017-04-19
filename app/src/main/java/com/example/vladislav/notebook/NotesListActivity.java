@@ -21,15 +21,17 @@ import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NotesListActivity extends AppCompatActivity {
+public class NotesListActivity extends AppCompatActivity implements RecyclerViewListener {
 
     private EditText searchEditText = null;
     private ImageButton searchButton = null;
     private ImageButton addButton = null;
-    private ImageButton commitSearchButton = null;
+    private ImageButton commitOperationButton = null;
     private List<Note> mNotesList = new LinkedList<>();
     private RecyclerViewAdapter mAdapter;
     private boolean searched = false;
+    private boolean delete = false;
+
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
 
@@ -50,12 +52,12 @@ public class NotesListActivity extends AppCompatActivity {
                         addButton.setVisibility(View.GONE);
                         searchButton.setVisibility(View.GONE);
                         searchEditText.setVisibility(View.VISIBLE);
-                        commitSearchButton.setVisibility(View.VISIBLE);
+                        commitOperationButton.setVisibility(View.VISIBLE);
 
                         setSearched(true);
                     } else {
                         searchEditText.setVisibility(View.GONE);
-                        commitSearchButton.setVisibility(View.GONE);
+                        commitOperationButton.setVisibility(View.GONE);
                         searchButton.setVisibility(View.VISIBLE);
                         addButton.setVisibility(View.VISIBLE);
                         notifyIfListEmpty();
@@ -64,19 +66,38 @@ public class NotesListActivity extends AppCompatActivity {
                     break;
                 }
                 case (R.id.delete_button): {
-                    if (isSearched()) {
+                    if (isSearched()
+                            || delete) {
                         searchEditText.setVisibility(View.GONE);
-                        commitSearchButton.setVisibility(View.GONE);
+                        commitOperationButton.setVisibility(View.GONE);
                         addButton.setVisibility(View.VISIBLE);
                         searchButton.setVisibility(View.VISIBLE);
                         setSearched(false);
+                        mAdapter.setDeletionCheckBoxVisibility(false);
+                        mAdapter.notifyDataSetChanged();
+                        delete = false;
                         loadNotesListAndUpdateAdapter(null);
                     } else {
                         // TODO Implement deletion of a note
+                        delete = true;
+                        mAdapter.setDeletionCheckBoxVisibility(true);
+                        mAdapter.notifyDataSetChanged();
+                        searchEditText.setVisibility(View.GONE);
+                        addButton.setVisibility(View.GONE);
+                        searchButton.setVisibility(View.GONE);
+                        commitOperationButton.setVisibility(View.VISIBLE);
                     }
                     break;
                 }
-                case (R.id.commit_search_button): {
+                case (R.id.commit_operation_button): {
+                    if (delete) {
+                        for (int i = 0; i < mAdapter.getItemCount(); i++) {
+                            if (mNotesList.get(i).isDelete()) {
+//                                mAdapter.getItemId(i);
+                                System.out.println(mNotesList.get(i).getTitle());
+                            }
+                        }
+                    }
                     loadNotesListAndUpdateAdapter(searchEditText.getText().toString());
                     break;
                 }
@@ -96,7 +117,7 @@ public class NotesListActivity extends AppCompatActivity {
         searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchButton = (ImageButton) findViewById(R.id.search_button);
         addButton = (ImageButton) findViewById(R.id.add_button);
-        commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
+        commitOperationButton = (ImageButton) findViewById(R.id.commit_operation_button);
         mAdapter = new RecyclerViewAdapter(this);
         addButtonListeners();
     }
@@ -123,13 +144,17 @@ public class NotesListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (isSearched()) {
+        if (isSearched()
+                || delete) {
             searchEditText.setVisibility(View.GONE);
-            searchButton.setVisibility(View.VISIBLE);
-            commitSearchButton.setVisibility(View.GONE);
+            commitOperationButton.setVisibility(View.GONE);
             addButton.setVisibility(View.VISIBLE);
-            loadNotesListAndUpdateAdapter(null);
+            searchButton.setVisibility(View.VISIBLE);
             setSearched(false);
+            mAdapter.setDeletionCheckBoxVisibility(false);
+            mAdapter.notifyDataSetChanged();
+            delete = false;
+            loadNotesListAndUpdateAdapter(null);
         } else {
             super.onBackPressed();
         }
@@ -143,7 +168,7 @@ public class NotesListActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(this.mClickListener);
         ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
         searchButton.setOnClickListener(this.mClickListener);
-        ImageButton commitSearchButton = (ImageButton) findViewById(R.id.commit_search_button);
+        ImageButton commitSearchButton = (ImageButton) findViewById(R.id.commit_operation_button);
         commitSearchButton.setOnClickListener(this.mClickListener);
 
         searchEditText.setImeActionLabel("Custom text", KeyEvent.KEYCODE_ENTER);
@@ -167,7 +192,6 @@ public class NotesListActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = null;
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
-        recyclerView.addOnItemTouchListener(createRecyclerItemClickListener());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mAdapter);
 
@@ -227,5 +251,29 @@ public class NotesListActivity extends AppCompatActivity {
 
     public void setSearched(boolean searched) {
         this.searched = searched;
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        Intent intent = new Intent(this,
+                NoteActivity.class);
+        // Putting a data about a clicked note to an intent, to get it later
+        // in a NoteActivity to edit.
+        intent.putExtra(DBNotesContract.Note._ID,
+                mNotesList.get(position).getID());
+        intent.putExtra(DBNotesContract.Note.TITLE,
+                mNotesList.get(position).getTitle());
+        intent.putExtra(DBNotesContract.Note.TEXT,
+                mNotesList.get(position).getText());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onCheckDelete(int position) {
+        if (mNotesList.get(position).isDelete()) {
+            mNotesList.get(position).setDelete(false);
+        } else {
+            mNotesList.get(position).setDelete(true);
+        }
     }
 }

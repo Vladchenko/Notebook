@@ -2,7 +2,6 @@ package com.example.vladislav.notebook;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -10,9 +9,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.vladislav.notebook.bean.Note;
 import com.example.vladislav.notebook.database.DBHelper;
@@ -30,15 +29,17 @@ import java.util.List;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
     private Context context;
-    // Position of a clicked item of a notes list in a recyclerview.
-    private int position = -1;
+    private boolean deletionCheckBoxVisibility = false;
     private List<Note> mNotesList;
     private DateFormat dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
     private final int editMenuItemId = 604049931;
     private final int deleteMenuItemId = 639592949;
+    RecyclerViewListener recyclerListener;
+
 
     public RecyclerViewAdapter(Context context) {
         this.context = context;
+        recyclerListener = (RecyclerViewListener) context;
     }
 
     @Override
@@ -50,10 +51,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onBindViewHolder(NoteListItemViewHolder holder, int position) {
+    public void onBindViewHolder(NoteListItemViewHolder holder, final int position) {
         Note note = mNotesList.get(position);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               recyclerListener.onItemClick(position);
+            }
+        });
         holder.titleTextView.setText(note.getTitle());
         holder.modification_timing_text_view.setText(dateFormat.format(note.getModificationDate()));
+        if (isDeletionCheckBoxVisibility()){
+            holder.deletionCheckBox.setVisibility(View.VISIBLE);
+        }else{
+            holder.deletionCheckBox.setVisibility(View.GONE);
+        }
+        holder.deletionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Marking a note with a deletion flag.
+                recyclerListener.onCheckDelete(position);
+            }
+        });
     }
 
     @Override
@@ -65,25 +85,26 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
+    @Override
+    public long getItemId(int position) {
+        return mNotesList.get(position).getID();
+    }
+
     public void update(List list) {
         this.mNotesList = list;
         notifyDataSetChanged();
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
     }
 
     public class NoteListItemViewHolder extends RecyclerView.ViewHolder
             implements View.OnCreateContextMenuListener
     {
 
+        CheckBox deletionCheckBox;
         TextView titleTextView;
         TextView modification_timing_text_view;
         MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-//                System.out.println(item.getItemId());
                 switch (item.getItemId()) {
                     case editMenuItemId: {
                         Intent intent = NoteActivity.newIntent(context);
@@ -122,7 +143,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             super(itemView);
             titleTextView = (TextView) itemView.findViewById(R.id.note_title_text_view);
             modification_timing_text_view = (TextView) itemView.findViewById(R.id.modification_timing_text_view);
+            deletionCheckBox = (CheckBox) itemView.findViewById(R.id.deletion_check_box);
             itemView.findViewById(R.id.note_list_item).setOnCreateContextMenuListener(this);
+
         }
 
         @Override
@@ -132,6 +155,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             menu.add(0, deleteMenuItemId, 0, "Delete").setOnMenuItemClickListener(onMenuItemClickListener);
         }
 
+    }
+
+    public boolean isDeletionCheckBoxVisibility() {
+        return deletionCheckBoxVisibility;
+    }
+
+    public void setDeletionCheckBoxVisibility(boolean deletionCheckBoxVisibility) {
+        this.deletionCheckBoxVisibility = deletionCheckBoxVisibility;
     }
 
 }

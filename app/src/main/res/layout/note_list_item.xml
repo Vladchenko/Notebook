@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/note_list_item"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/note_list_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:outlineProvider="bounds"
     android:clipToPadding="false">
 
     <ImageView
         android:id="@+id/pen_image_view"
         android:layout_width="@dimen/notes_list_image_size"
         android:layout_height="@dimen/notes_list_image_size"
-        app:srcCompat="@drawable/ic_create_black_24dp"
-        android:tint="@color/colorWhite"
+        android:layout_margin="5dp"
         android:background="@drawable/ic_brightness_1_black_24dp"
         android:backgroundTint="@color/colorAccent"
         android:scaleType="center"
-        android:layout_margin="5dp"/>
+        android:tint="@color/colorWhite"
+        app:srcCompat="@drawable/ic_create_black_24dp" />
 
     <TextView
         android:id="@+id/note_title_text_view"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/notes_list_image_size"
+        android:layout_alignBottom="@+id/pen_image_view"
+        android:layout_alignTop="@+id/pen_image_view"
         android:layout_toRightOf="@id/pen_image_view"
-        android:textAlignment="center"
         android:gravity="center"
         android:text="Note's title"
-        android:layout_alignTop="@+id/pen_image_view"
-        android:layout_alignBottom="@+id/pen_image_view" />
+        android:textAlignment="center" />
 
     <ImageView
         android:id="@+id/divider_image_view"
@@ -42,8 +40,21 @@
         android:id="@+id/modification_timing_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="4dp"/>
+        android:layout_marginRight="4dp"
+        android:text="TextView" />
+
+    <CheckBox
+        android:id="@+id/deletion_check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/modification_timing_text_view"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:buttonTint="@color/colorAccent"
+        android:scaleX="2"
+        android:scaleY="2"
+        android:visibility="gone"/>
 
 </RelativeLayout>

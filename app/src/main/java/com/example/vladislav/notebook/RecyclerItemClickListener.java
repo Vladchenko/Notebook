@@ -47,32 +47,6 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 
     @Override
     public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
-
-//        //creating a popup menu
-//        PopupMenu popup = new PopupMenu(context, view);
-//        //inflating menu from xml resource
-//        popup.inflate(R.menu.options_menu);
-//        //adding click listener
-//        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                switch (item.getItemId()) {
-//                    case R.id.menu1:
-//                        //handle menu1 click
-//                        break;
-//                    case R.id.menu2:
-//                        //handle menu2 click
-//                        break;
-//                    case R.id.menu3:
-//                        //handle menu3 click
-//                        break;
-//                }
-//                return false;
-//            }
-//        });
-//        //displaying the popup
-//        popup.show();
-
     }
 
     @Override
