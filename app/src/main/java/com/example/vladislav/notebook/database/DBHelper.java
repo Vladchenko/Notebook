@@ -31,25 +31,25 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final int NEW_NOTE_ADDED = 1;
     public static final int NEW_NOTE_NOT_ADDED = 0;
 
-    private Date date;
-    private static DBHelper instance;
-    private SimpleDateFormat sdf = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
+    private Date mDate;
+    private static DBHelper sInstance;
+    private SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public static void createInstance(Context context) {
-        if (instance == null) {
-            instance = new DBHelper(context);
+        if (sInstance == null) {
+            sInstance = new DBHelper(context);
         }
     }
 
     public static DBHelper getInstance() {
-        if (instance == null) {
+        if (sInstance == null) {
             throw new IllegalStateException("createInstance() should be called before");
         }
-        return instance;
+        return sInstance;
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -83,8 +83,8 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(DBNotesContract.Note.TITLE, note.getTitle());
         values.put(DBNotesContract.Note.TEXT, note.getText());
         values.put(DBNotesContract.Note.TAG, note.getTag());
-        values.put(DBNotesContract.Note.CREATION_DATE, sdf.format(note.getCreationDate()));
-        values.put(DBNotesContract.Note.MODIFICATION_DATE, sdf.format(note.getModificationDate()));
+        values.put(DBNotesContract.Note.CREATION_DATE, mSimpleDateFormat.format(note.getCreationDate()));
+        values.put(DBNotesContract.Note.MODIFICATION_DATE, mSimpleDateFormat.format(note.getModificationDate()));
 
         return values;
     }
@@ -98,12 +98,12 @@ public class DBHelper extends SQLiteOpenHelper {
         note.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBNotesContract.Note.TEXT)));
         note.setTag(cursor.getString(cursor.getColumnIndexOrThrow(DBNotesContract.Note.TAG)));
 
-        date = format.parse(cursor.getString(
+        mDate = format.parse(cursor.getString(
                 cursor.getColumnIndexOrThrow(DBNotesContract.Note.CREATION_DATE)));
-        note.setCreationDate(date);
-        date = format.parse(cursor.getString(
+        note.setCreationDate(mDate);
+        mDate = format.parse(cursor.getString(
                 cursor.getColumnIndexOrThrow(DBNotesContract.Note.MODIFICATION_DATE)));
-        note.setModificationDate(date);
+        note.setModificationDate(mDate);
 
     }
 
@@ -120,7 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         LinkedList<Note> notes = new LinkedList<>();
         Note note = null;
-        date = null;
+        mDate = null;
         String whereString = null;
 
         // When a searchCriterion is not null and not empty, it will be like

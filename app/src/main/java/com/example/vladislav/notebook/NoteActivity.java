@@ -4,12 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,14 +24,16 @@ import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
 
+    // Says that there is no mNote in a database
     private static final int NOTE_ABSENT = -1;
+    // When there is no text present in a newly adding mNote.
     private static final int TEXT_ABSENT = 0;
 
+    private Note mNote;
+    private Date mCurrentDateTime;
     private long mNoteId = NOTE_ABSENT;
-    private EditText noteTitleEditText;
-    private EditText noteContentTextEditText;
-    private Note note;
-    private Date currentDateTime;
+    private EditText mNoteTitleEditText;
+    private EditText mNoteContentTextEditText;
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
 
@@ -42,17 +42,17 @@ public class NoteActivity extends AppCompatActivity {
 
             switch (v.getId()) {
                 case R.id.save_button: {
-                    noteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
-                    if (noteTitleEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog("Input a title for your note");
+                    mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
+                    if (mNoteTitleEditText.getText().length() == TEXT_ABSENT) {
+                        showAlertDialog("Input a title for your mNote");
                         break;
                     }
-                    noteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
-                    if (noteContentTextEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog("Input a text for your note");
+                    mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
+                    if (mNoteContentTextEditText.getText().length() == TEXT_ABSENT) {
+                        showAlertDialog("Input a text for your mNote");
                         break;
                     }
-                    // If note id present, it means user calls this note for editing,
+                    // If mNote id present, it means user calls this mNote for editing,
                     // so make an update, when editing is done (checkmark is clicked in activity).
                     try {
                         updateOrAddNote();
@@ -62,15 +62,11 @@ public class NoteActivity extends AppCompatActivity {
                     finish();
                     break;
                 }
-                case R.id.cancel_search_button: {
+                case R.id.cancel_operation_button: {
                     setResult(DBHelper.NEW_NOTE_NOT_ADDED);
                     finish();
                     break;
                 }
-                // TODO Implement this case
-//            case R.id.delete_button: {
-//
-//            }
             }
         }
     };
@@ -93,34 +89,31 @@ public class NoteActivity extends AppCompatActivity {
         setButtonsListeners();
 
         mNoteId = intent.getLongExtra(DBNotesContract.Note._ID, NOTE_ABSENT);
-        // Present Id says that there is a note to be edited.
+        // Present Id says that there is a mNote in a database to be edited.
         if (mNoteId != NOTE_ABSENT) {
             noteTitle = intent.getStringExtra(DBNotesContract.Note.TITLE);
-            noteTitleEditText.setText(noteTitle);
+            mNoteTitleEditText.setText(noteTitle);
             noteContentText = intent.getStringExtra(DBNotesContract.Note.TEXT);
-            noteContentTextEditText.setText(noteContentText);
+            mNoteContentTextEditText.setText(noteContentText);
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return true;
-    }
-
+    // Making up a ContentValues for further putting them to a database.
     private ContentValues assignNoteContentValues() {
         ContentValues contentValues = new ContentValues();
         SimpleDateFormat sdf = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
-        contentValues.put(DBNotesContract.Note.TITLE, noteTitleEditText.getText().toString());
-        contentValues.put(DBNotesContract.Note.TEXT, noteContentTextEditText.getText().toString());
+        contentValues.put(DBNotesContract.Note.TITLE, mNoteTitleEditText.getText().toString());
+        contentValues.put(DBNotesContract.Note.TEXT, mNoteContentTextEditText.getText().toString());
         contentValues.put(DBNotesContract.Note.MODIFICATION_DATE, sdf.format(new Date()));
         return contentValues;
     }
 
+    // Updating an existing mNote or adding a new one to a database.
     private void updateOrAddNote() throws ParseException {
 
         if (mNoteId != NOTE_ABSENT) {
 
-            // Updating an existing note.
+            // Updating an existing mNote.
             DBHelper.getInstance().getWritableDatabase().update(
                     DBNotesContract.Note.TABLE_NAME,
                     assignNoteContentValues(),
@@ -130,22 +123,22 @@ public class NoteActivity extends AppCompatActivity {
 
         } else {
 
-            // Checking if a note with such a title exists and if so - do not add it and inform
+            // Checking if a mNote with such a title exists and if so - do not add it and inform
             // a user.
             List<Note> notesList = DBHelper.getInstance().loadNotesFromDataBase(
-                    noteTitleEditText.getText().toString());
+                    mNoteTitleEditText.getText().toString());
 
-            // If notesList is not empty, that means note with such a title already exists.
+            // If notesList is not empty, that means mNote with such a title already exists.
             if (!notesList.isEmpty()) {
                 Toast.makeText(this, getResources().getText(R.string.note_exists_message),
                         Toast.LENGTH_SHORT).show();
                 Log.i(getClass().getSimpleName(), "Note titled "
-                        + noteTitleEditText.getText().toString()
+                        + mNoteTitleEditText.getText().toString()
                         + " exists in a database.");
             } else {
                 addNewNote();
                 Log.i(getClass().getSimpleName(), "Note titled "
-                        + noteTitleEditText.getText().toString()
+                        + mNoteTitleEditText.getText().toString()
                         + " is added to a database.");
             }
 
@@ -153,16 +146,18 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
+    // Assigning a click listeners to all the buttons present on an activity.
     private void setButtonsListeners() {
         ImageButton button = null;
         button = (ImageButton) findViewById(R.id.save_button);
         button.setOnClickListener(this.mClickListener);
-        button = (ImageButton) findViewById(R.id.cancel_search_button);
+        button = (ImageButton) findViewById(R.id.cancel_operation_button);
         button.setOnClickListener(this.mClickListener);
-        noteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
-        noteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
+        mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
+        mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
     }
 
+    // Notifying a user when something is wrong.
     private void showAlertDialog(String message) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -182,21 +177,22 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
+    // Putting a new mNote to a database.
     private void addNewNote() {
-        currentDateTime = new Date();
-        // Populating a note bean for further saving it to a data base.
-        note = new Note(
-                noteTitleEditText.getText().toString(),
-                noteContentTextEditText.getText().toString(),
+        mCurrentDateTime = new Date();
+        // Populating a mNote bean for further saving it to a data base.
+        mNote = new Note(
+                mNoteTitleEditText.getText().toString(),
+                mNoteContentTextEditText.getText().toString(),
                 "",
-                new Date(currentDateTime.getTime()),
-                new Date(currentDateTime.getTime())
+                new Date(mCurrentDateTime.getTime()),
+                new Date(mCurrentDateTime.getTime())
         );
-        // Saving a note to a database.
+        // Saving a mNote to a database.
         DBHelper.getInstance().getWritableDatabase().insert(
                 DBNotesContract.Note.TABLE_NAME,
                 null,
-                DBHelper.getInstance().setNoteValues(note));
+                DBHelper.getInstance().setNoteValues(mNote));
         setResult(DBHelper.NEW_NOTE_ADDED);
     }
 

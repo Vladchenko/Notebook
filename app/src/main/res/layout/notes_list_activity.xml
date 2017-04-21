@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.vladislav.notebook.NotesListActivity"
+    tools:context="com.example.vladislav.notebook.noteslist.NotesListActivity"
     android:padding="@dimen/common_padding"
     android:background="@color/colorWhite">
 

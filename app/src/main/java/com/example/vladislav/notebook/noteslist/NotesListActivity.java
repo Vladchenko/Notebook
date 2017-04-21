@@ -1,4 +1,4 @@
-package com.example.vladislav.notebook;
+package com.example.vladislav.notebook.noteslist;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.vladislav.notebook.NoteActivity;
+import com.example.vladislav.notebook.R;
 import com.example.vladislav.notebook.bean.Note;
 import com.example.vladislav.notebook.database.DBHelper;
 import com.example.vladislav.notebook.database.DBNotesContract;
@@ -23,15 +25,18 @@ import java.util.List;
 
 public class NotesListActivity extends AppCompatActivity implements RecyclerViewListener {
 
-    private EditText searchEditText = null;
-    private ImageButton searchButton = null;
-    private ImageButton addButton = null;
-    private ImageButton commitOperationButton = null;
+    private EditText mSearchEditText = null;
+    private ImageButton mSearchButton = null;
+    private ImageButton mAddButton = null;
+    // Button which function depends on an operation that is being made at the moment - deletion or
+    // an editing.
+    private ImageButton mCommitOperationButton = null;
     private List<Note> mNotesList = new LinkedList<>();
     private RecyclerViewAdapter mAdapter;
-    private boolean searched = false;
-    private boolean delete = false;
-
+    // Flag that says if a search of a note(s) is being performed right now.
+    private boolean mSearched = false;
+    // Flag that says if a deletion of a note is being performed right now.
+    private boolean mDelete = false;
 
     private View.OnClickListener mClickListener = new View.OnClickListener() {
 
@@ -40,8 +45,8 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
 
             switch (v.getId()) {
                 case (R.id.add_button): {
-                    searchEditText.setVisibility(View.GONE);
-                    searchButton.setVisibility(View.VISIBLE);
+                    mSearchEditText.setVisibility(View.GONE);
+                    mSearchButton.setVisibility(View.VISIBLE);
                     setSearched(false);
                     Intent intent = NoteActivity.newIntent(NotesListActivity.this);
                     startActivityForResult(intent, 1);
@@ -49,17 +54,17 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
                 }
                 case (R.id.search_button): {
                     if (!isSearched()) {
-                        addButton.setVisibility(View.GONE);
-                        searchButton.setVisibility(View.GONE);
-                        searchEditText.setVisibility(View.VISIBLE);
-                        commitOperationButton.setVisibility(View.VISIBLE);
+                        mAddButton.setVisibility(View.GONE);
+                        mSearchButton.setVisibility(View.GONE);
+                        mSearchEditText.setVisibility(View.VISIBLE);
+                        mCommitOperationButton.setVisibility(View.VISIBLE);
 
                         setSearched(true);
                     } else {
-                        searchEditText.setVisibility(View.GONE);
-                        commitOperationButton.setVisibility(View.GONE);
-                        searchButton.setVisibility(View.VISIBLE);
-                        addButton.setVisibility(View.VISIBLE);
+                        mSearchEditText.setVisibility(View.GONE);
+                        mCommitOperationButton.setVisibility(View.GONE);
+                        mSearchButton.setVisibility(View.VISIBLE);
+                        mAddButton.setVisibility(View.VISIBLE);
                         notifyIfListEmpty();
                         setSearched(false);
                     }
@@ -67,38 +72,41 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
                 }
                 case (R.id.delete_button): {
                     if (isSearched()
-                            || delete) {
-                        searchEditText.setVisibility(View.GONE);
-                        commitOperationButton.setVisibility(View.GONE);
-                        addButton.setVisibility(View.VISIBLE);
-                        searchButton.setVisibility(View.VISIBLE);
+                            || mDelete) {
+                        mSearchEditText.setVisibility(View.GONE);
+                        mCommitOperationButton.setVisibility(View.GONE);
+                        mAddButton.setVisibility(View.VISIBLE);
+                        mSearchButton.setVisibility(View.VISIBLE);
                         setSearched(false);
                         mAdapter.setDeletionCheckBoxVisibility(false);
                         mAdapter.notifyDataSetChanged();
-                        delete = false;
+                        mDelete = false;
                         loadNotesListAndUpdateAdapter(null);
                     } else {
-                        // TODO Implement deletion of a note
-                        delete = true;
+                        mDelete = true;
                         mAdapter.setDeletionCheckBoxVisibility(true);
                         mAdapter.notifyDataSetChanged();
-                        searchEditText.setVisibility(View.GONE);
-                        addButton.setVisibility(View.GONE);
-                        searchButton.setVisibility(View.GONE);
-                        commitOperationButton.setVisibility(View.VISIBLE);
+                        mSearchEditText.setVisibility(View.GONE);
+                        mAddButton.setVisibility(View.GONE);
+                        mSearchButton.setVisibility(View.GONE);
+                        mCommitOperationButton.setVisibility(View.VISIBLE);
                     }
                     break;
                 }
                 case (R.id.commit_operation_button): {
-                    if (delete) {
+                    if (mDelete) {
                         for (int i = 0; i < mAdapter.getItemCount(); i++) {
                             if (mNotesList.get(i).isDelete()) {
-//                                mAdapter.getItemId(i);
-                                System.out.println(mNotesList.get(i).getTitle());
+                                DBHelper.getInstance().getReadableDatabase().delete(
+                                        DBNotesContract.Note.TABLE_NAME,
+                                        DBNotesContract.Note._ID + " = \""
+                                                + mNotesList.get(i).getID() + "\"",
+                                        null
+                                );
                             }
                         }
                     }
-                    loadNotesListAndUpdateAdapter(searchEditText.getText().toString());
+                    loadNotesListAndUpdateAdapter(mSearchEditText.getText().toString());
                     break;
                 }
             }
@@ -111,13 +119,41 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
     }
 
     @Override
+    public void onBackPressed() {
+        if (isSearched()
+                || mDelete) {
+            mSearchEditText.setVisibility(View.GONE);
+            mCommitOperationButton.setVisibility(View.GONE);
+            mAddButton.setVisibility(View.VISIBLE);
+            mSearchButton.setVisibility(View.VISIBLE);
+            setSearched(false);
+            mAdapter.setDeletionCheckBoxVisibility(false);
+            mAdapter.notifyDataSetChanged();
+            mDelete = false;
+            loadNotesListAndUpdateAdapter(null);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // When new note is being added ...
+        if (resultCode == DBHelper.NEW_NOTE_ADDED) {
+            // Loading all notes from a database.
+            loadNotesListAndUpdateAdapter(null);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notes_list_activity);
-        searchEditText = (EditText) findViewById(R.id.search_edit_text);
-        searchButton = (ImageButton) findViewById(R.id.search_button);
-        addButton = (ImageButton) findViewById(R.id.add_button);
-        commitOperationButton = (ImageButton) findViewById(R.id.commit_operation_button);
+        mSearchEditText = (EditText) findViewById(R.id.search_edit_text);
+        mSearchButton = (ImageButton) findViewById(R.id.search_button);
+        mAddButton = (ImageButton) findViewById(R.id.add_button);
+        mCommitOperationButton = (ImageButton) findViewById(R.id.commit_operation_button);
         mAdapter = new RecyclerViewAdapter(this);
         addButtonListeners();
     }
@@ -126,38 +162,12 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
     protected void onResume() {
         super.onResume();
 
-        // Loading notes from a database, sending it to adapter and notifying user if list is empty.
+        // Loading all notes from a database, sending it to adapter and notifying user if list is
+        // empty.
         loadNotesListAndUpdateAdapter(null);
 
         setupRecyclerView();
 
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == DBHelper.NEW_NOTE_ADDED) {
-            // Loading notes from a database.
-            loadNotesListAndUpdateAdapter(null);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (isSearched()
-                || delete) {
-            searchEditText.setVisibility(View.GONE);
-            commitOperationButton.setVisibility(View.GONE);
-            addButton.setVisibility(View.VISIBLE);
-            searchButton.setVisibility(View.VISIBLE);
-            setSearched(false);
-            mAdapter.setDeletionCheckBoxVisibility(false);
-            mAdapter.notifyDataSetChanged();
-            delete = false;
-            loadNotesListAndUpdateAdapter(null);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     private void addButtonListeners() {
@@ -171,15 +181,16 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
         ImageButton commitSearchButton = (ImageButton) findViewById(R.id.commit_operation_button);
         commitSearchButton.setOnClickListener(this.mClickListener);
 
-        searchEditText.setImeActionLabel("Custom text", KeyEvent.KEYCODE_ENTER);
-        searchEditText.setOnKeyListener(new View.OnKeyListener() {
+        mSearchEditText.setImeActionLabel("Custom text", KeyEvent.KEYCODE_ENTER);
+        // Figuring if an "Enter" button has been pushed to commit a search.
+        mSearchEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 // If the event is a key-down event on the "enter" button
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     // Perform action on key press
-                    loadNotesListAndUpdateAdapter(searchEditText.getText().toString());
+                    loadNotesListAndUpdateAdapter(mSearchEditText.getText().toString());
                     return true;
                 }
                 return false;
@@ -197,6 +208,8 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
 
     }
 
+    // Making a recycler item click listener so that it could put a new note data to an intent to
+    // further pass it to NoteActivity for editing.
     private RecyclerItemClickListener createRecyclerItemClickListener() {
         return new RecyclerItemClickListener(NotesListActivity.this,
                 new RecyclerItemClickListener.OnItemClickListener() {
@@ -217,6 +230,7 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
                 });
     }
 
+    // Notifying a user if a notes list is empty.
     private void notifyIfListEmpty() {
 
         // Showing a message that notes list is empty when it is so.
@@ -234,6 +248,8 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
 
     }
 
+    // Loading all or several(in case a search criterion is provided) notes from a database and
+    // updating adapter for recycler viewer with notes.
     private void loadNotesListAndUpdateAdapter(String searchCriterion) {
         try {
             mNotesList = DBHelper.getInstance().loadNotesFromDataBase(
@@ -245,14 +261,7 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
         mAdapter.update(mNotesList);
     }
 
-    public boolean isSearched() {
-        return searched;
-    }
-
-    public void setSearched(boolean searched) {
-        this.searched = searched;
-    }
-
+    // When recycler viewer item (note) clicked.
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(this,
@@ -268,6 +277,7 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
         startActivity(intent);
     }
 
+    // Switching a mDelete flag.
     @Override
     public void onCheckDelete(int position) {
         if (mNotesList.get(position).isDelete()) {
@@ -275,5 +285,13 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
         } else {
             mNotesList.get(position).setDelete(true);
         }
+    }
+
+    public boolean isSearched() {
+        return mSearched;
+    }
+
+    public void setSearched(boolean searched) {
+        this.mSearched = searched;
     }
 }

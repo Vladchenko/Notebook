@@ -25,7 +25,7 @@
         android:layout_alignTop="@+id/pen_image_view"
         android:layout_toRightOf="@id/pen_image_view"
         android:gravity="center"
-        android:text="Note's title"
+        android:text="@string/note_item_hint_default_text"
         android:textAlignment="center" />
 
     <ImageView
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginRight="4dp"
-        android:text="TextView" />
+        android:text="@string/note_item_hint_default_date_message" />
 
     <CheckBox
         android:id="@+id/deletion_check_box"

@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//        Next line is required to use app:srcCompat=" ...
+        vectorDrawables.useSupportLibrary true
     }
     buildTypes {
         release {

@@ -1,4 +1,4 @@
-package com.example.vladislav.notebook;
+package com.example.vladislav.notebook.noteslist;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.example.vladislav.notebook.Consts;
+import com.example.vladislav.notebook.NoteActivity;
+import com.example.vladislav.notebook.R;
 import com.example.vladislav.notebook.bean.Note;
 import com.example.vladislav.notebook.database.DBHelper;
 import com.example.vladislav.notebook.database.DBNotesContract;
@@ -28,18 +31,19 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.NoteListItemViewHolder> {
 
-    private Context context;
-    private boolean deletionCheckBoxVisibility = false;
-    private List<Note> mNotesList;
-    private DateFormat dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
-    private final int editMenuItemId = 604049931;
-    private final int deleteMenuItemId = 639592949;
-    RecyclerViewListener recyclerListener;
+    private final int editMenuItemId = 0;
+    private final int deleteMenuItemId = 1;
+    private boolean deletionCheckBoxVisibility;
 
+    private Context context;
+    private List<Note> mNotesList;
+    private DateFormat dateFormat;
+    private RecyclerViewListener recyclerListener;
 
     public RecyclerViewAdapter(Context context) {
         this.context = context;
         recyclerListener = (RecyclerViewListener) context;
+        dateFormat = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
     }
 
     @Override
@@ -102,10 +106,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         CheckBox deletionCheckBox;
         TextView titleTextView;
         TextView modification_timing_text_view;
+        // Popup menu click handler.
         MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
+                    // When "Edit" popup menu item is clicked.
                     case editMenuItemId: {
                         Intent intent = NoteActivity.newIntent(context);
                         intent.putExtra(DBNotesContract.Note._ID,
@@ -117,6 +123,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                         context.startActivity(intent);
                         break;
                     }
+                    // When "Delete" popup menu item is clicked.
                     case deleteMenuItemId: {
                         // Delete a current note from a database.
                         DBHelper.getInstance().getWritableDatabase().delete(
@@ -145,7 +152,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             modification_timing_text_view = (TextView) itemView.findViewById(R.id.modification_timing_text_view);
             deletionCheckBox = (CheckBox) itemView.findViewById(R.id.deletion_check_box);
             itemView.findViewById(R.id.note_list_item).setOnCreateContextMenuListener(this);
-
         }
 
         @Override

@@ -1,14 +1,10 @@
-package com.example.vladislav.notebook;
+package com.example.vladislav.notebook.noteslist;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Created by vladislav on 06.02.17.
@@ -16,7 +12,6 @@ import android.widget.Toast;
 
 public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
 
-    private Context context;
     private OnItemClickListener mListener;
     private GestureDetector mGestureDetector;
 
@@ -26,7 +21,6 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 
     public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
         mListener = listener;
-        this.context = context;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {

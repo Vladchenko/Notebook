@@ -3,7 +3,11 @@
     <string name="no_notes_found_message">No notes found</string>
     <string name="empty_notes_list_message">Add a note by clicking + button</string>
     <string name="note_exists_message">Note with such title exists</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="note_text_hint">Type a text for a note</string>
+    <string name="note_title_hint">Type a title for a note</string>
+    <string name="note_title_inscription">Note title:</string>
+    <string name="note_text_inscription">Note content:</string>
+    <string name="note_item_hint_default_text">Note\'s title</string>
+    <string name="note_item_hint_default_date_message">Note\'s modification date and time goes here
+    </string>
 </resources>
