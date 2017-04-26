@@ -62,7 +62,7 @@ public class NoteActivity extends AppCompatActivity {
                     finish();
                     break;
                 }
-                case R.id.cancel_operation_button: {
+                case R.id.cancel_save_button: {
                     setResult(DBHelper.NEW_NOTE_NOT_ADDED);
                     finish();
                     break;
@@ -151,7 +151,7 @@ public class NoteActivity extends AppCompatActivity {
         ImageButton button = null;
         button = (ImageButton) findViewById(R.id.save_button);
         button.setOnClickListener(this.mClickListener);
-        button = (ImageButton) findViewById(R.id.cancel_operation_button);
+        button = (ImageButton) findViewById(R.id.cancel_save_button);
         button.setOnClickListener(this.mClickListener);
         mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
         mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);

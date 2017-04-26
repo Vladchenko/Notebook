@@ -58,7 +58,6 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
                         mSearchButton.setVisibility(View.GONE);
                         mSearchEditText.setVisibility(View.VISIBLE);
                         mCommitOperationButton.setVisibility(View.VISIBLE);
-
                         setSearched(true);
                     } else {
                         mSearchEditText.setVisibility(View.GONE);
