@@ -2,15 +2,23 @@ package com.example.vladislav.notebook;
 
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
+import android.widget.TextView;
 
+import com.example.vladislav.notebook.bean.Note;
+import com.example.vladislav.notebook.database.DBHelper;
+import com.example.vladislav.notebook.database.DBNotesContract;
 import com.example.vladislav.notebook.noteslist.NotesListActivity;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Date;
+
+import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -26,6 +34,9 @@ public class EspressoTest {
     @Rule
     public ActivityTestRule<NotesListActivity> mNotesListActivityRule = new ActivityTestRule<>(
             NotesListActivity.class);
+    @Rule
+    public ActivityTestRule<NoteActivity> mNoteActivityRule = new ActivityTestRule<>(
+            NoteActivity.class);
 
     @Before
     public void setUp() throws Exception {
@@ -33,7 +44,8 @@ public class EspressoTest {
         mNotesListActivityRule.launchActivity(i);
     }
 
-    private void onAddButtonClick() {
+    @Test
+    public void onAddButtonClick() {
 
         onView(withId(R.id.add_button)).perform(click());
 
@@ -45,14 +57,6 @@ public class EspressoTest {
         onView(withId(R.id.note_content_edit_text)).check(matches(isDisplayed()));
         onView(withId(R.id.note_title_edit_text)).check(matches(isDisplayed()));
         onView(withId(R.id.note_title_text_view)).check(matches(isDisplayed()));
-        onView(withId(R.id.note_title_edit_text)).check(matches(isDisplayed()));
-
-    }
-
-    @Test
-    public void onAddButtonClickTest() throws Exception {
-
-        onAddButtonClick();
 
     }
 
@@ -86,8 +90,30 @@ public class EspressoTest {
     public void onNewNoteCreating() throws Exception {
 
         onAddButtonClick();
-        // What's done next to add a new note;
 
+        // What's done next to add a new note;
+        onView(withId(R.id.note_title_edit_text)).perform(typeText("test text"));
+        closeSoftKeyboard();
+        onView(withId(R.id.note_content_edit_text)).perform(typeText("test text"));
+        closeSoftKeyboard();
+
+        Date dateTime = new Date();
+
+        // Populating a note bean for further saving it to a data base.
+        Note note = new Note(
+                ((TextView)mNoteActivityRule.getActivity().
+                        findViewById(R.id.note_title_edit_text)).getText().toString(),
+                ((TextView)mNoteActivityRule.getActivity().
+                        findViewById(R.id.note_content_title_text_view)).getText().toString(),
+                "",
+                dateTime,
+                dateTime);
+
+        // Saving a mNote to a database.
+        DBHelper.getInstance().getWritableDatabase().insert(
+                DBNotesContract.Note.TABLE_NAME,
+                null,
+                DBHelper.getInstance().setNoteValues(note));
     }
 
 }

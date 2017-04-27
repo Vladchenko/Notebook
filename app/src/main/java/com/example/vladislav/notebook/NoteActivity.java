@@ -177,7 +177,7 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
-    // Putting a new mNote to a database.
+    // Putting a new Note to a database.
     private void addNewNote() {
         mCurrentDateTime = new Date();
         // Populating a mNote bean for further saving it to a data base.
@@ -185,8 +185,8 @@ public class NoteActivity extends AppCompatActivity {
                 mNoteTitleEditText.getText().toString(),
                 mNoteContentTextEditText.getText().toString(),
                 "",
-                new Date(mCurrentDateTime.getTime()),
-                new Date(mCurrentDateTime.getTime())
+                mCurrentDateTime,
+                mCurrentDateTime
         );
         // Saving a mNote to a database.
         DBHelper.getInstance().getWritableDatabase().insert(
