@@ -1,6 +1,8 @@
 package com.example.vladislav.notebook;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.TextView;
 
@@ -22,6 +24,8 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+//import static android.support.test.espresso.contrib.RecyclerViewActions;
+import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.Matchers.not;
 
 /**
@@ -30,6 +34,12 @@ import static org.hamcrest.Matchers.not;
 
 public class EspressoTest {
 
+
+    final String NOTE_TITLE_TEST_TEXT = "test text";
+    final String NOTE_TEXT_TEST_TEXT = "test text";
+    String loadedTitle;
+    String typedNoteTitle;
+    String typedNoteText;
 
     @Rule
     public ActivityTestRule<NotesListActivity> mNotesListActivityRule = new ActivityTestRule<>(
@@ -44,8 +54,7 @@ public class EspressoTest {
         mNotesListActivityRule.launchActivity(i);
     }
 
-    @Test
-    public void onAddButtonClick() {
+    private void addButtonClick() {
 
         onView(withId(R.id.add_button)).perform(click());
 
@@ -60,8 +69,7 @@ public class EspressoTest {
 
     }
 
-    @Test
-    public void onDeleteButtonClick() throws Exception {
+    private void deleteButtonClick() {
 
         onView(withId(R.id.delete_button)).perform(click());
 
@@ -72,6 +80,42 @@ public class EspressoTest {
         // Delete button serves as cancel button in this case.
         onView(withId(R.id.delete_button)).check(matches(isDisplayed()));
 
+    }
+
+    private void createNewNote() {
+
+        // What's done next, to add a new note;
+        onView(withId(R.id.note_title_edit_text)).perform(typeText(NOTE_TITLE_TEST_TEXT));
+        closeSoftKeyboard();
+        onView(withId(R.id.note_content_edit_text)).perform(typeText(NOTE_TEXT_TEST_TEXT));
+        closeSoftKeyboard();
+
+        Date dateTime = new Date();
+        typedNoteTitle = ((TextView) mNoteActivityRule.getActivity().
+                findViewById(R.id.note_title_edit_text)).getText().toString();
+        typedNoteText = ((TextView) mNoteActivityRule.getActivity().
+                findViewById(R.id.note_content_title_text_view)).getText().toString();
+
+        // Populating a note bean for further saving it to a data base.
+        Note note = new Note(
+                typedNoteTitle,
+                typedNoteText,
+                "",
+                dateTime,
+                dateTime);
+
+        // That's when a new note is added to a database.
+        onView(withId(R.id.save_button)).perform(click());
+    }
+
+    @Test
+    public void onAddButtonClick() {
+        addButtonClick();
+    }
+
+    @Test
+    public void onDeleteButtonClick() throws Exception {
+        deleteButtonClick();
     }
 
     @Test
@@ -87,33 +131,53 @@ public class EspressoTest {
     }
 
     @Test
-    public void onNewNoteCreating() throws Exception {
+    public void testNewNoteCreatingAndDeleting() throws Exception {
 
         onAddButtonClick();
 
-        // What's done next to add a new note;
-        onView(withId(R.id.note_title_edit_text)).perform(typeText("test text"));
-        closeSoftKeyboard();
-        onView(withId(R.id.note_content_edit_text)).perform(typeText("test text"));
-        closeSoftKeyboard();
+        createNewNote();
 
-        Date dateTime = new Date();
+        Cursor cursor =
+                DBHelper.getInstance().getReadableDatabase().query(
+                        DBNotesContract.Note.TABLE_NAME,
+                        null,
+                        DBNotesContract.Note.TITLE + " = \"" + NOTE_TITLE_TEST_TEXT + "\"",
+                        null,
+                        null,
+                        null,
+                        null);
 
-        // Populating a note bean for further saving it to a data base.
-        Note note = new Note(
-                ((TextView)mNoteActivityRule.getActivity().
-                        findViewById(R.id.note_title_edit_text)).getText().toString(),
-                ((TextView)mNoteActivityRule.getActivity().
-                        findViewById(R.id.note_content_title_text_view)).getText().toString(),
-                "",
-                dateTime,
-                dateTime);
+        cursor.moveToFirst();
+        loadedTitle = cursor.getString(cursor.getColumnIndex(DBNotesContract.Note.TITLE));
 
-        // Saving a mNote to a database.
-        DBHelper.getInstance().getWritableDatabase().insert(
+        cursor.close();
+
+        DBHelper.getInstance().getReadableDatabase().delete(
                 DBNotesContract.Note.TABLE_NAME,
-                null,
-                DBHelper.getInstance().setNoteValues(note));
+                DBNotesContract.Note.TITLE + " = \""
+                        + loadedTitle + "\"",
+                null
+        );
+
+        assertEquals(loadedTitle, NOTE_TITLE_TEST_TEXT);
+
+    }
+
+    @Test
+    public void testDeleteNoteByCheckMark() throws Exception {
+
+        addButtonClick();
+        createNewNote();
+
+        deleteButtonClick();
+
+        // Getting an item in a recyclerview and clicking its deletion checkmark.
+        onView(withId(R.id.recycler)).perform(
+                RecyclerViewActions.actionOnItemAtPosition(
+                        0, MyViewAction.clickChildViewWithId(R.id.deletion_check_box)));
+
+        onView(withId(R.id.commit_operation_button)).perform(click());
+
     }
 
 }
