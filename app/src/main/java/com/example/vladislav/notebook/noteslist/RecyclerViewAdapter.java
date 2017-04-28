@@ -66,7 +66,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         });
         holder.titleTextView.setText(note.getTitle());
         holder.modification_timing_text_view.setText(mDateFormat.format(note.getModificationDate()));
-        if (isDeletionCheckBoxVisibility()){
+        if (isDeletionCheckBoxVisible()){
             holder.deletionCheckBox.setVisibility(View.VISIBLE);
         }else{
             holder.deletionCheckBox.setVisibility(View.GONE);
@@ -94,11 +94,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return mNotesList.get(position).getID();
     }
 
+    /**
+     *
+     * Updating an adapter's list with a new one.
+     *
+     * @param list - new list to be placed to an adapter's one.
+     */
     public void update(List list) {
         this.mNotesList = list;
         notifyDataSetChanged();
     }
 
+    /**
+     *
+     * In charge of a logic and outlook of a recycler view item.
+     *
+     */
     public class NoteListItemViewHolder extends RecyclerView.ViewHolder
             implements View.OnCreateContextMenuListener
     {
@@ -126,14 +137,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     // When "Delete" popup menu item is clicked.
                     case DELETE_MENU_ITEM_ID: {
                         // Delete a current note from a database.
-                        DBHelper.getInstance().getWritableDatabase().delete(
-                                DBNotesContract.Note.TABLE_NAME,
-                                DBNotesContract.Note.TITLE + " = \""
-                                        + titleTextView.getText().toString() + "\"",
-                                null);
+                        try {
+                            DBHelper.getInstance().getWritableDatabase().delete(
+                                    DBNotesContract.Note.TABLE_NAME,
+                                    DBNotesContract.Note.TITLE + " = \""
+                                            + titleTextView.getText().toString() + "\"",
+                                    null);
+                        } finally {
+                            DBHelper.getInstance().close();
+                        }
                         // Loading a notes list again from a database.
                         try {
                             mNotesList = DBHelper.getInstance().loadNotesFromDataBase(null);
+                            DBHelper.getInstance().close();
                         } catch (ParseException e) {
                             Log.e(getClass().getSimpleName(), e.getMessage());
                         }
@@ -163,12 +179,34 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
-    public boolean isDeletionCheckBoxVisibility() {
+    /**
+     *
+     * Retrieves a flag saying if a deletion checkbox is visible for every item of a recyclerview.
+     *
+     * @return
+     */
+    public boolean isDeletionCheckBoxVisible() {
         return mDeletionCheckBoxVisibility;
     }
 
-    public void setDeletionCheckBoxVisibility(boolean deletionCheckBoxVisibility) {
+    /**
+     *
+     * Sets a flag saying if a deletion checkbox is visible for every item of a recyclerview.
+     *
+     * @return
+     */
+    public void setDeletionCheckBoxVisibile(boolean deletionCheckBoxVisibility) {
         this.mDeletionCheckBoxVisibility = deletionCheckBoxVisibility;
+    }
+
+    interface RecyclerViewListener {
+
+        // Triggers when a recyclerview item is clicked.
+        void onItemClick(int position);
+
+        // Triggers when a delete checkmark in a recyclerview item is clicked.
+        void onCheckDelete(int position);
+
     }
 
 }

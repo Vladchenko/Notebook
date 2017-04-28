@@ -133,31 +133,41 @@ public class EspressoTest {
     @Test
     public void testNewNoteCreatingAndDeleting() throws Exception {
 
+        Cursor cursor = null;
+
         onAddButtonClick();
 
         createNewNote();
 
-        Cursor cursor =
-                DBHelper.getInstance().getReadableDatabase().query(
-                        DBNotesContract.Note.TABLE_NAME,
-                        null,
-                        DBNotesContract.Note.TITLE + " = \"" + NOTE_TITLE_TEST_TEXT + "\"",
-                        null,
-                        null,
-                        null,
-                        null);
+        try {
+            cursor =
+                    DBHelper.getInstance().getReadableDatabase().query(
+                            DBNotesContract.Note.TABLE_NAME,
+                            null,
+                            DBNotesContract.Note.TITLE + " = \"" + NOTE_TITLE_TEST_TEXT + "\"",
+                            null,
+                            null,
+                            null,
+                            null);
+            cursor.moveToFirst();
+            loadedTitle = cursor.getString(cursor.getColumnIndex(DBNotesContract.Note.TITLE));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            DBHelper.getInstance().close();
+        }
 
-        cursor.moveToFirst();
-        loadedTitle = cursor.getString(cursor.getColumnIndex(DBNotesContract.Note.TITLE));
-
-        cursor.close();
-
-        DBHelper.getInstance().getReadableDatabase().delete(
-                DBNotesContract.Note.TABLE_NAME,
-                DBNotesContract.Note.TITLE + " = \""
-                        + loadedTitle + "\"",
-                null
-        );
+        try {
+            DBHelper.getInstance().getReadableDatabase().delete(
+                    DBNotesContract.Note.TABLE_NAME,
+                    DBNotesContract.Note.TITLE + " = \""
+                            + loadedTitle + "\"",
+                    null
+            );
+        } finally {
+            DBHelper.getInstance().close();
+        }
 
         assertEquals(loadedTitle, NOTE_TITLE_TEST_TEXT);
 

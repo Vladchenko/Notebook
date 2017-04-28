@@ -10,4 +10,6 @@
     <string name="note_item_hint_default_text">Note\'s title</string>
     <string name="note_item_hint_default_date_message">Note\'s modification date and time goes here
     </string>
+    <string name="new_note_title_missing_message">Input a title for your note</string>
+    <string name="new_note_text_missing_message">Input a text for your note</string>
 </resources>

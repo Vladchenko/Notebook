@@ -44,12 +44,12 @@ public class NoteActivity extends AppCompatActivity {
                 case R.id.save_button: {
                     mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
                     if (mNoteTitleEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog("Input a title for your mNote");
+                        showAlertDialog(getResources().getString(R.string.new_note_title_missing_message));
                         break;
                     }
                     mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
                     if (mNoteContentTextEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog("Input a text for your mNote");
+                        showAlertDialog(getResources().getString(R.string.new_note_text_missing_message));
                         break;
                     }
                     // If mNote id present, it means user calls this mNote for editing,
@@ -108,27 +108,36 @@ public class NoteActivity extends AppCompatActivity {
         return contentValues;
     }
 
-    // Updating an existing mNote or adding a new one to a database.
+    // Updating an existing note or adding a new one to a database.
     private void updateOrAddNote() throws ParseException {
 
         if (mNoteId != NOTE_ABSENT) {
 
             // Updating an existing mNote.
-            DBHelper.getInstance().getWritableDatabase().update(
-                    DBNotesContract.Note.TABLE_NAME,
-                    assignNoteContentValues(),
-                    DBNotesContract.Note._ID + "=" + mNoteId,
-                    null);
+            try {
+                DBHelper.getInstance().getWritableDatabase().update(
+                        DBNotesContract.Note.TABLE_NAME,
+                        assignNoteContentValues(),
+                        DBNotesContract.Note._ID + "=" + mNoteId,
+                        null);
+            } finally {
+                DBHelper.getInstance().close();
+            }
             Log.i(getClass().getSimpleName(), "Note with id = " + mNoteId + " is updated.");
 
         } else {
 
-            // Checking if a mNote with such a title exists and if so - do not add it and inform
+            // Checking if a note with such a title exists and if so - do not add it and inform
             // a user.
-            List<Note> notesList = DBHelper.getInstance().loadNotesFromDataBase(
-                    mNoteTitleEditText.getText().toString());
+            List<Note> notesList;
+            try {
+                notesList = DBHelper.getInstance().loadNotesFromDataBase(
+                        mNoteTitleEditText.getText().toString());
+            } finally {
+                DBHelper.getInstance().close();
+            }
 
-            // If notesList is not empty, that means mNote with such a title already exists.
+            // If notesList is not empty, that means note with such title, already exists.
             if (!notesList.isEmpty()) {
                 Toast.makeText(this, getResources().getText(R.string.note_exists_message),
                         Toast.LENGTH_SHORT).show();
@@ -153,8 +162,6 @@ public class NoteActivity extends AppCompatActivity {
         button.setOnClickListener(this.mClickListener);
         button = (ImageButton) findViewById(R.id.cancel_save_button);
         button.setOnClickListener(this.mClickListener);
-        mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
-        mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
     }
 
     // Notifying a user when something is wrong.
@@ -189,10 +196,14 @@ public class NoteActivity extends AppCompatActivity {
                 mCurrentDateTime
         );
         // Saving a mNote to a database.
-        DBHelper.getInstance().getWritableDatabase().insert(
-                DBNotesContract.Note.TABLE_NAME,
-                null,
-                DBHelper.getInstance().setNoteValues(mNote));
+        try {
+            DBHelper.getInstance().getWritableDatabase().insert(
+                    DBNotesContract.Note.TABLE_NAME,
+                    null,
+                    DBHelper.getInstance().setNoteValues(mNote));
+        } finally {
+            DBHelper.getInstance().close();
+        }
         setResult(DBHelper.NEW_NOTE_ADDED);
     }
 
