@@ -84,7 +84,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    // This method is called only when a database doesn't exist.
+    /**
+     * This method is called only when a database doesn't exist.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         createDataBase(db);
@@ -130,7 +132,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return values;
     }
 
-    private void parseCursor(Note note, Cursor cursor) throws ParseException {
+    private Note parseCursor(Note note, Cursor cursor) throws ParseException {
 
         DateFormat format = new SimpleDateFormat(Consts.DATE_TIME_FORMAT, Locale.ENGLISH);
 
@@ -146,6 +148,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 cursor.getColumnIndexOrThrow(DBNotesContract.Note.MODIFICATION_DATE)));
         note.setModificationDate(mDate);
 
+        return note;
     }
 
     /**
@@ -185,7 +188,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             null);
             while (cursor.moveToNext()) {
                 note = new Note();
-                parseCursor(note, cursor);
+                note = parseCursor(note, cursor);
                 notes.add(note);
             }
         } finally {

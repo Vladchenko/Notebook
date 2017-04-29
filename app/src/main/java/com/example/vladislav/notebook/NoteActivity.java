@@ -24,9 +24,9 @@ import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
 
-    // Says that there is no mNote in a database
+    // Says that there is no note in a database
     private static final int NOTE_ABSENT = -1;
-    // When there is no text present in a newly adding mNote.
+    // When there is no text present in a newly adding note.
     private static final int TEXT_ABSENT = 0;
 
     private Note mNote;
@@ -34,42 +34,6 @@ public class NoteActivity extends AppCompatActivity {
     private long mNoteId = NOTE_ABSENT;
     private EditText mNoteTitleEditText;
     private EditText mNoteContentTextEditText;
-
-    private View.OnClickListener mClickListener = new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-
-            switch (v.getId()) {
-                case R.id.save_button: {
-                    mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
-                    if (mNoteTitleEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog(getResources().getString(R.string.new_note_title_missing_message));
-                        break;
-                    }
-                    mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
-                    if (mNoteContentTextEditText.getText().length() == TEXT_ABSENT) {
-                        showAlertDialog(getResources().getString(R.string.new_note_text_missing_message));
-                        break;
-                    }
-                    // If mNote id present, it means user calls this mNote for editing,
-                    // so make an update, when editing is done (checkmark is clicked in activity).
-                    try {
-                        updateOrAddNote();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    finish();
-                    break;
-                }
-                case R.id.cancel_save_button: {
-                    setResult(DBHelper.NEW_NOTE_NOT_ADDED);
-                    finish();
-                    break;
-                }
-            }
-        }
-    };
 
     public static Intent newIntent(Context context) {
         Intent intent = new Intent(context, NoteActivity.class);
@@ -86,10 +50,13 @@ public class NoteActivity extends AppCompatActivity {
         String noteContentText = null;
         Intent intent = getIntent();
 
+        mNoteTitleEditText = (EditText) findViewById(R.id.note_title_edit_text);
+        mNoteContentTextEditText = (EditText) findViewById(R.id.note_content_edit_text);
+
         setButtonsListeners();
 
         mNoteId = intent.getLongExtra(DBNotesContract.Note._ID, NOTE_ABSENT);
-        // Present Id says that there is a mNote in a database to be edited.
+        // Present Id says that there is a note in a database to be edited.
         if (mNoteId != NOTE_ABSENT) {
             noteTitle = intent.getStringExtra(DBNotesContract.Note.TITLE);
             mNoteTitleEditText.setText(noteTitle);
@@ -98,7 +65,9 @@ public class NoteActivity extends AppCompatActivity {
         }
     }
 
-    // Making up a ContentValues for further putting them to a database.
+    /**
+     * Making up a ContentValues for further putting them to a database.
+     */
     private ContentValues assignNoteContentValues() {
         ContentValues contentValues = new ContentValues();
         SimpleDateFormat sdf = new SimpleDateFormat(Consts.DATE_TIME_FORMAT);
@@ -108,12 +77,14 @@ public class NoteActivity extends AppCompatActivity {
         return contentValues;
     }
 
-    // Updating an existing note or adding a new one to a database.
+    /**
+     *  Updating an existing note or adding a new one to a database.
+     */
     private void updateOrAddNote() throws ParseException {
 
         if (mNoteId != NOTE_ABSENT) {
 
-            // Updating an existing mNote.
+            // Updating an existing note.
             try {
                 DBHelper.getInstance().getWritableDatabase().update(
                         DBNotesContract.Note.TABLE_NAME,
@@ -155,16 +126,48 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
-    // Assigning a click listeners to all the buttons present on an activity.
+    /**
+     * Setting a View.OnClickListener to every button present on this activity.
+     */
     private void setButtonsListeners() {
         ImageButton button = null;
         button = (ImageButton) findViewById(R.id.save_button);
-        button.setOnClickListener(this.mClickListener);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mNoteTitleEditText.getText().length() == TEXT_ABSENT) {
+                    showAlertDialog(getResources().getString(R.string.new_note_title_missing_message));
+                } else {
+                    if (mNoteContentTextEditText.getText().length() == TEXT_ABSENT) {
+                        showAlertDialog(getResources().getString(R.string.new_note_text_missing_message));
+                    } else {
+                        // If note id is present, it means user calls this note for editing,
+                        // so make an update, when editing is done (checkmark is clicked in activity).
+                        try {
+                            updateOrAddNote();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                finish();
+            }
+        });
         button = (ImageButton) findViewById(R.id.cancel_save_button);
-        button.setOnClickListener(this.mClickListener);
+        button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                setResult(DBHelper.NEW_NOTE_NOT_ADDED);
+                finish();
+            }
+        });
     }
 
-    // Notifying a user when something is wrong.
+    /**
+     * Notifying a user when something is wrong.
+     * @param message - message to be shown in an alertDialog window.
+     */
     private void showAlertDialog(String message) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -184,10 +187,12 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
-    // Putting a new Note to a database.
+    /**
+     *  Putting a new note to a database.
+     */
     private void addNewNote() {
         mCurrentDateTime = new Date();
-        // Populating a mNote bean for further saving it to a data base.
+        // Populating a note bean for further saving it to a data base.
         mNote = new Note(
                 mNoteTitleEditText.getText().toString(),
                 mNoteContentTextEditText.getText().toString(),
@@ -195,7 +200,7 @@ public class NoteActivity extends AppCompatActivity {
                 mCurrentDateTime,
                 mCurrentDateTime
         );
-        // Saving a mNote to a database.
+        // Saving a note to a database.
         try {
             DBHelper.getInstance().getWritableDatabase().insert(
                     DBNotesContract.Note.TABLE_NAME,

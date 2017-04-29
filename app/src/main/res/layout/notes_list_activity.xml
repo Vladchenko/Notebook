@@ -2,21 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/notes_list_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
-    tools:context="com.example.vladislav.notebook.noteslist.NotesListActivity"
     android:padding="@dimen/common_padding"
-    android:background="@color/colorWhite">
+    tools:context="com.example.vladislav.notebook.noteslist.NotesListActivity">
 
     <EditText
         android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
         android:hint="Type title to search a note"
-        android:visibility="gone"/>
+        android:inputType="textPersonName"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,15 +28,14 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </android.support.v7.widget.RecyclerView>
+            android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
 
         <TextView
             android:id="@+id/recycler_empty_list_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/empty_notes_list_message"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:text="@string/empty_notes_list_message" />
 
     </RelativeLayout>
 
@@ -53,17 +53,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_input_add"
-                android:backgroundTint="@color/colorWhite"/>
+                android:backgroundTint="@color/colorWhite"
+                app:srcCompat="@android:drawable/ic_input_add" />
 
             <ImageButton
                 android:id="@+id/commit_operation_button"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/checkbox_on_background"
                 android:backgroundTint="@color/colorWhite"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                app:srcCompat="@android:drawable/checkbox_on_background" />
 
             <ImageButton
                 android:id="@+id/delete_button"
@@ -71,8 +71,8 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/add_button"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_delete"
-                android:backgroundTint="@color/colorWhite"/>
+                android:backgroundTint="@color/colorWhite"
+                app:srcCompat="@android:drawable/ic_delete" />
 
             <ImageButton
                 android:id="@+id/search_button"
@@ -80,8 +80,8 @@
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@id/delete_button"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/ic_search_black_24dp"
-                android:backgroundTint="@color/colorWhite"/>
+                android:backgroundTint="@color/colorWhite"
+                app:srcCompat="@drawable/ic_search_black_24dp" />
 
         </LinearLayout>
 

@@ -97,6 +97,9 @@ public class NotesListActivity extends AppCompatActivity implements RecyclerView
 
     }
 
+    /**
+     * Setting a View.OnClickListener to every button present on this activity.
+     */
     private void addButtonsListeners() {
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override

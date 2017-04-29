@@ -13,7 +13,7 @@ public final class DBNotesContract {
     private DBNotesContract() {}
 
     public static class Note implements BaseColumns {
-        // These are a column names, thus they have to be oа a String type here.
+        // These are a column names, thus they have to be of a String type here.
         public static final String TABLE_NAME = "notes";
         public static final String TITLE = "title";
         public static final String TEXT = "text";
