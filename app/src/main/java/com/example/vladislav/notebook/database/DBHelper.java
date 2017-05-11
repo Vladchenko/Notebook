@@ -12,6 +12,7 @@ import com.example.vladislav.notebook.bean.Note;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -162,7 +163,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public List<Note> loadNotesFromDataBase(String searchCriterion) throws ParseException {
 
-        LinkedList<Note> notes = new LinkedList<>();
+        ArrayList<Note> notes = new ArrayList<>();
         Note note = null;
         mDate = null;
         String whereString = null;
@@ -177,6 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
             whereString = DBNotesContract.Note.TITLE + " = " + "\"" + searchCriterion + "\"";
         }
 
+        DBHelper.getInstance().getReadableDatabase().beginTransaction();
         try {
             cursor = DBHelper.getInstance().getReadableDatabase().query(
                             DBNotesContract.Note.TABLE_NAME,
@@ -192,6 +194,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 notes.add(note);
             }
         } finally {
+            DBHelper.getInstance().getReadableDatabase().endTransaction();
             if (cursor != null) {
                 cursor.close();
             }
