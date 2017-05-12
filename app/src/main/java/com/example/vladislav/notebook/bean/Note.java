@@ -50,11 +50,11 @@ public class Note {
 
     @Override
     public String toString() {
-        return "Note{" +
-                "mTitle='" + mTitle + '\'' +
-                ", mText='" + mText + '\'' +
-                ", mTag='" + mTag + '\'' +
-                '}';
+        return "Note {" +
+                " Title='" + mTitle + '\'' +
+                ", Text='" + mText + '\'' +
+                ", Tag='" + mTag + '\'' +
+                " }";
     }
 
     public String getTitle() {

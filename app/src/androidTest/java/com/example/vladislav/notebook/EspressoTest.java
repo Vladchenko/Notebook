@@ -2,10 +2,11 @@ package com.example.vladislav.notebook;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v7.widget.RecyclerView;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.vladislav.notebook.bean.Note;
@@ -13,6 +14,7 @@ import com.example.vladislav.notebook.database.DBHelper;
 import com.example.vladislav.notebook.database.DBNotesContract;
 import com.example.vladislav.notebook.noteslist.NotesListActivity;
 
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -311,4 +313,34 @@ public class EspressoTest {
         assertEquals(recyclerViewItemsNumber - 1, recyclerView.getAdapter().getItemCount());
     }
 
+    /**
+     * Created by vladislav on 27.04.17.
+     */
+    public static class MyViewAction {
+
+        public static ViewAction clickChildViewWithId(final int id) {
+
+            return new ViewAction() {
+
+                @Override
+                public Matcher<android.view.View> getConstraints() {
+                    return null;
+                }
+
+                @Override
+                public String getDescription() {
+                    return "Click on a child view with specified id.";
+                }
+
+                @Override
+                public void perform(UiController uiController, android.view.View view) {
+                    android.view.View v = view.findViewById(id);
+                    v.performClick();
+                }
+
+            };
+
+        }
+
+    }
 }
