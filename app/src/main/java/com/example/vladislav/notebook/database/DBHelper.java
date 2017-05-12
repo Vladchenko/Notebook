@@ -41,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /**
      *
-     *  Creating an instance in case it was not created befoиуащку
+     *  Creating an instance in case it was not created before
      *
      */
     public static void createInstance(Context context) {
